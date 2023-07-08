@@ -12,5 +12,12 @@ export const USERS_MESSAGES = {
   CONFIRM_PASSWORD_IS_REQUIRED: 'confirm password is required',
   CONFIRM_PASSWORD_MUST_BE_STRING: 'confirm password must be a string',
   CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD: 'password confirm does not match password !',
-  DATE_OF_BIRTH_MUST_BE_ISO8601_FORMAT: 'date must be ISO 8601 formatted'
+  DATE_OF_BIRTH_MUST_BE_ISO8601_FORMAT: 'date must be ISO 8601 formatted',
+  WRONG_EMAIL_OR_PASSWORD: 'Email or password is incorrect !',
+  LOGIN_SUCCESS: 'login success',
+  LOGOUT_SUCCESS: 'logout success',
+  REGISTER_SUCCESS: 'register success',
+  ACCESS_TOKEN_REQUIRED: 'Access token is required',
+  REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
+  USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exist'
 }
