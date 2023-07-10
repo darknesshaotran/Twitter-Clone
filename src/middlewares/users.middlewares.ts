@@ -1,4 +1,6 @@
+import { REFUSED } from 'dns'
 import { checkSchema } from 'express-validator'
+import { ObjectId } from 'mongodb'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/messages'
 import { ErrorsWithStatus } from '~/models/Errors'
@@ -122,21 +124,16 @@ const checkLoginValidator = checkSchema(
 const checkAccessTokenValidator = checkSchema(
   {
     Authorization: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.ACCESS_TOKEN_REQUIRED
-      },
       custom: {
         options: async (value: string, { req }) => {
-          const accessToken = value.split(' ')[1]
-          const decoded_authorization = await verifyToken({ token: accessToken })
-          const Refresh_token = databaseService.refreshTokens.findOne({ token: value })
-          console.log(Refresh_token)
-          if (Refresh_token === null) {
+          if (!value) {
             throw new ErrorsWithStatus({
-              message: USERS_MESSAGES.USED_REFRESH_TOKEN_OR_NOT_EXIST,
+              message: USERS_MESSAGES.ACCESS_TOKEN_REQUIRED,
               status: HTTP_STATUS.UNAUTHORIZED
             })
           }
+          const accessToken = value.split(' ')[1]
+          const decoded_authorization = await verifyToken({ token: accessToken })
           req.decoded_authorization = decoded_authorization
           return true
         }
@@ -149,12 +146,170 @@ const checkAccessTokenValidator = checkSchema(
 const checkRefreshTokenValidator = checkSchema(
   {
     Refresh_token: {
-      notEmpty: {
-        errorMessage: USERS_MESSAGES.REFRESH_TOKEN_REQUIRED
-      },
       custom: {
         options: async (value: string, { req }) => {
+          if (!value) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.REFRESH_TOKEN_REQUIRED,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
           const decoded_refresh_token = await verifyToken({ token: value })
+          const Refresh_token = await databaseService.refreshTokens.findOne({ token: value })
+          if (Refresh_token === null) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USED_REFRESH_TOKEN_OR_NOT_EXIST,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          req.decoded_refresh_token = decoded_refresh_token
+          return true
+        }
+      }
+    }
+  },
+  ['body']
+)
+
+const checkEmailVerifyTokenValidator = checkSchema(
+  {
+    Email_verify_token: {
+      custom: {
+        options: async (value: string, { req }) => {
+          if (!value) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_REQUIRED,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          const decoded_email_verify_token = await verifyToken({ token: value })
+          req.decoded_email_verify_token = decoded_email_verify_token
+          return true
+        }
+      }
+    }
+  },
+  ['body']
+)
+
+const checkForgotPasswordValidator = checkSchema(
+  {
+    email: {
+      isEmail: {
+        errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ email: value })
+          if (!user) {
+            throw new Error(USERS_MESSAGES.USER_NOT_FOUND)
+          }
+          req.user = user
+        }
+      }
+    }
+  },
+  ['body']
+)
+
+const checkVerifyForgotPasswordTokenValidator = checkSchema(
+  {
+    forgot_password_token: {
+      trim: true,
+      custom: {
+        options: async (value: string, { req }) => {
+          if (!value) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_REQUIRED,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          const decoded_forgot_password_token = await verifyToken({ token: value })
+          const user = await databaseService.users.findOne({
+            _id: new ObjectId(decoded_forgot_password_token.userId)
+          })
+          if (!user) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          if (user.forgot_password_token !== value) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          return true
+        }
+      }
+    }
+  },
+  ['body']
+)
+const checkResetPasswordValidator = checkSchema(
+  {
+    password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+      },
+      isString: {
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRING
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 0,
+          minNumbers: 1,
+          minSymbols: 0
+        },
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
+      }
+    },
+    confirm_password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+      },
+      isString: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRING
+      },
+      custom: {
+        options: (value, { req }) => {
+          if (value !== req.body.password) {
+            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD)
+          }
+          return true
+        }
+      }
+    },
+    forgot_password_token: {
+      trim: true,
+      custom: {
+        options: async (value: string, { req }) => {
+          if (!value) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_REQUIRED,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          const decoded_forgot_password_token = await verifyToken({ token: value })
+          const user = await databaseService.users.findOne({
+            _id: new ObjectId(decoded_forgot_password_token.userId)
+          })
+          if (!user) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          if (user.forgot_password_token !== value) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_INVALID,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          req.decoded_forgot_password_token = decoded_forgot_password_token
           return true
         }
       }
@@ -166,3 +321,7 @@ export const registerValidator = validate(checkRegisterValidator)
 export const loginValidator = validate(checkLoginValidator)
 export const accessTokenValidator = validate(checkAccessTokenValidator)
 export const refreshTokenValidator = validate(checkRefreshTokenValidator)
+export const emailVerifyTokenValidator = validate(checkEmailVerifyTokenValidator)
+export const forgotPasswordValidator = validate(checkForgotPasswordValidator)
+export const verifyForgotPasswordTokenValidator = validate(checkVerifyForgotPasswordTokenValidator)
+export const resetPasswordValidator = validate(checkResetPasswordValidator)

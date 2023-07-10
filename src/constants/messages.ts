@@ -19,5 +19,15 @@ export const USERS_MESSAGES = {
   REGISTER_SUCCESS: 'register success',
   ACCESS_TOKEN_REQUIRED: 'Access token is required',
   REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
-  USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exist'
+  USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exist',
+  USER_NOT_FOUND: 'User not found',
+  EMAIL_VERIFIED: 'Email already has been verified before',
+  VERIFY_EMAIL_SUCCESS: 'Verified email successfully',
+  EMAIL_VERIFY_TOKEN_REQUIRED: 'Email verify token is required',
+  RESEND_VERIFY_EMAIL_SUCCESS: 'Resend verify email successfully',
+  CHECK_EMAIL_TO_RESET_PASSWORD: 'Check email to reset password',
+  FORGOT_PASSWORD_TOKEN_REQUIRED: 'Forgot password is required',
+  VERIFY_FORGOT_PASSWORD_SUCCESS: 'Verify forgot password successfully',
+  FORGOT_PASSWORD_TOKEN_INVALID: 'Forgot password token is invalid',
+  RESET_PASSWORD_SUCCESS: 'reset password successfully'
 }
