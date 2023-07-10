@@ -99,3 +99,13 @@ export const resetPasswordController = async (req: Request, res: Response) => {
   const result = await usersService.resetPassword(userId, password)
   res.json(result)
 }
+
+export const getMyInforController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const result = await usersService.getMe(userId)
+  return res.json({
+    message: USERS_MESSAGES.GET_ME_SUCCESS,
+    result
+  })
+}

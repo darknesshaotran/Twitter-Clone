@@ -2,6 +2,7 @@ import express from 'express'
 import {
   emailVerifyController,
   forgotPasswordController,
+  getMyInforController,
   loginController,
   logoutController,
   registerController,
@@ -89,6 +90,17 @@ usersRouter.post(
  * method : POST
  *  body : {
  *      forgot_password_token: string
+ * }
+ */
+usersRouter.get('/me', accessTokenValidator, wrapController(getMyInforController))
+/*
+ * description : reset password
+ * path : /reset-password
+ * method : POST
+ *  body : {
+ *      forgot_password_token: string
+ *      password: string
+ *      confirm_password: string
  * }
  */
 usersRouter.post('/reset-password', resetPasswordValidator, wrapController(resetPasswordController))
