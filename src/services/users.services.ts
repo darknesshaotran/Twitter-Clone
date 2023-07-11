@@ -1,7 +1,7 @@
 import User from '~/models/schemas/User.schema'
 
 import databaseService from './database.services'
-import { registerReqBody } from '~/models/requests/User.requests'
+import { registerReqBody, updateMyProfileReqBody } from '~/models/requests/User.requests'
 import { hashPassword } from '~/utils/crypto'
 import { signToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
@@ -9,12 +9,14 @@ import dotenv from 'dotenv'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
 import { USERS_MESSAGES } from '~/constants/messages'
+import { after } from 'node:test'
 dotenv.config()
 class UsersService {
-  private signAccessToken = (userId: string) => {
+  private signAccessToken = (userId: string, verifyStatus: UserVerifyStatus) => {
     return signToken({
       payload: {
         userId: userId,
+        verify: verifyStatus,
         type: TokenType.AccessToken
       },
       options: {
@@ -22,10 +24,11 @@ class UsersService {
       }
     })
   }
-  private signRefreshToken = (userId: string) => {
+  private signRefreshToken = (userId: string, verifyStatus: UserVerifyStatus) => {
     return signToken({
       payload: {
         userId: userId,
+        verify: verifyStatus,
         type: TokenType.RefreshToken
       },
       options: {
@@ -33,10 +36,11 @@ class UsersService {
       }
     })
   }
-  private signEmailVerifyToken = (userId: string) => {
+  private signEmailVerifyToken = (userId: string, verifyStatus: UserVerifyStatus) => {
     return signToken({
       payload: {
         userId: userId,
+        verify: verifyStatus,
         type: TokenType.EmailVerifyToken
       },
       options: {
@@ -44,10 +48,11 @@ class UsersService {
       }
     })
   }
-  private signForgotPasswordToken = (userId: string) => {
+  private signForgotPasswordToken = (userId: string, verifyStatus: UserVerifyStatus) => {
     return signToken({
       payload: {
         userId: userId,
+        verify: verifyStatus,
         type: TokenType.ForgotPasswordToken
       },
       options: {
@@ -77,9 +82,9 @@ class UsersService {
     )
     const userID = result.insertedId.toString()
     const [EmailVerifyToken, AccessToken, RefreshToken] = await Promise.all([
-      this.signEmailVerifyToken(userID),
-      this.signAccessToken(userID),
-      this.signRefreshToken(userID)
+      this.signEmailVerifyToken(userID, UserVerifyStatus.Unverified),
+      this.signAccessToken(userID, UserVerifyStatus.Unverified),
+      this.signRefreshToken(userID, UserVerifyStatus.Unverified)
     ])
     await databaseService.users.updateOne(
       { _id: new ObjectId(userID) },
@@ -96,10 +101,10 @@ class UsersService {
     }
   }
 
-  async login(userID: string) {
+  async login(userID: string, verify: UserVerifyStatus) {
     const [AccessToken, Refresh_token] = await Promise.all([
-      this.signAccessToken(userID),
-      this.signRefreshToken(userID)
+      this.signAccessToken(userID, verify),
+      this.signRefreshToken(userID, verify)
     ])
     await databaseService.refreshTokens.insertOne(
       new RefreshToken({ user_id: new ObjectId(userID), token: Refresh_token })
@@ -129,8 +134,8 @@ class UsersService {
       }
     )
     const [AccessToken, Refresh_token] = await Promise.all([
-      this.signAccessToken(userID),
-      this.signRefreshToken(userID)
+      this.signAccessToken(userID, UserVerifyStatus.Verified),
+      this.signRefreshToken(userID, UserVerifyStatus.Verified)
     ])
     return {
       AccessToken,
@@ -139,7 +144,7 @@ class UsersService {
   }
 
   async resendVerifyEmail(userID: string) {
-    const email_verify_token = await this.signEmailVerifyToken(userID)
+    const email_verify_token = await this.signEmailVerifyToken(userID, UserVerifyStatus.Unverified)
     await databaseService.users.updateOne(
       { _id: new ObjectId(userID) },
       {
@@ -154,8 +159,8 @@ class UsersService {
     }
   }
 
-  async forgotPassword(userID: string) {
-    const forgot_password_token = await this.signForgotPasswordToken(userID)
+  async forgotPassword(userID: string, verify: UserVerifyStatus) {
+    const forgot_password_token = await this.signForgotPasswordToken(userID, verify)
     await databaseService.users.updateOne(
       { _id: new ObjectId(userID) },
       {
@@ -201,6 +206,31 @@ class UsersService {
       }
     )
     return user
+  }
+
+  async updateMyProfile(userID: string, payload: updateMyProfileReqBody) {
+    const _payload = payload.date_of_birth ? { ...payload, date_of_birth: new Date(payload.date_of_birth) } : payload
+    // findOneAndUpdate: sau khi update, tra ve document cua collection da update
+    // updateOne : chi update, khong tra ve document cua collection da update
+    const user = await databaseService.users.findOneAndUpdate(
+      { _id: new ObjectId(userID) },
+      {
+        $set: {
+          ...(_payload as updateMyProfileReqBody & { date_of_birth?: Date }),
+          updated_at: new Date()
+        }
+      },
+      {
+        returnDocument: 'after', // neu khong co tham so nay thi default tra ve ban document cu chua update
+        // khi tra ve user thi ko tra ve cac column nay
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0
+        }
+      }
+    )
+    return user.value
   }
 }
 

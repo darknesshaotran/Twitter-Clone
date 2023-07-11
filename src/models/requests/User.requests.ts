@@ -5,3 +5,14 @@ export interface registerReqBody {
   confirm_password: string
   date_of_birth: string
 }
+
+export interface updateMyProfileReqBody {
+  name?: string
+  date_of_birth?: string
+  bio?: string
+  location?: string
+  website?: string
+  username?: string
+  avatar?: string
+  cover_photo?: string
+}

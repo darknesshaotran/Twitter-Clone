@@ -8,6 +8,7 @@ import {
   registerController,
   resendEmailVerifyController,
   resetPasswordController,
+  updateMyInforController,
   verifyForgotPasswordController
 } from '~/controllers/users.controllers'
 import {
@@ -18,7 +19,9 @@ import {
   refreshTokenValidator,
   registerValidator,
   resetPasswordValidator,
-  verifyForgotPasswordTokenValidator
+  updateMyProfileValidator,
+  verifyForgotPasswordTokenValidator,
+  verifyUserValidator
 } from '~/middlewares/users.middlewares'
 import { wrapController } from '~/utils/handler'
 const usersRouter = express.Router()
@@ -92,6 +95,17 @@ usersRouter.post(
  *      forgot_password_token: string
  * }
  */
+usersRouter.post('/reset-password', resetPasswordValidator, wrapController(resetPasswordController))
+/*
+ * description : reset password
+ * path : /reset-password
+ * method : POST
+ *  body : {
+ *      forgot_password_token: string
+ *      password: string
+ *      confirm_password: string
+ * }
+ */
 usersRouter.get('/me', accessTokenValidator, wrapController(getMyInforController))
 /*
  * description : reset password
@@ -103,15 +117,18 @@ usersRouter.get('/me', accessTokenValidator, wrapController(getMyInforController
  *      confirm_password: string
  * }
  */
-usersRouter.post('/reset-password', resetPasswordValidator, wrapController(resetPasswordController))
+usersRouter.patch(
+  '/me',
+  accessTokenValidator,
+  verifyUserValidator,
+  updateMyProfileValidator,
+  wrapController(updateMyInforController)
+)
 /*
- * description : reset password
+ * description : update my profile
  * path : /reset-password
  * method : POST
- *  body : {
- *      forgot_password_token: string
- *      password: string
- *      confirm_password: string
- * }
+ * headers : { Authorization: Bearer <access_token> }
+ *  body : UserSchema
  */
 export default usersRouter

@@ -1,6 +1,7 @@
-import { REFUSED } from 'dns'
+import { Response, Request, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
+import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/messages'
 import { ErrorsWithStatus } from '~/models/Errors'
@@ -247,6 +248,7 @@ const checkVerifyForgotPasswordTokenValidator = checkSchema(
   },
   ['body']
 )
+
 const checkResetPasswordValidator = checkSchema(
   {
     password: {
@@ -317,6 +319,85 @@ const checkResetPasswordValidator = checkSchema(
   },
   ['body']
 )
+
+const checkUpdateMyProfileValidator = checkSchema(
+  {
+    name: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.NAME_MUST_BE_STRING
+      },
+      isLength: {
+        options: {
+          max: 50,
+          min: 1
+        },
+        errorMessage: USERS_MESSAGES.NAME_LENGTH_FROM_1_TO_50
+      },
+      trim: true
+    },
+    date_of_birth: {
+      optional: true,
+      isISO8601: {
+        options: {
+          strict: true,
+          strictSeparator: true
+        },
+        errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601_FORMAT
+      }
+    },
+    bio: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.BIO_MUST_BE_STRING
+      }
+    },
+    location: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.LOCATION_MUST_BE_STRING
+      }
+    },
+    website: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.WEBSITE_MUST_BE_STRING
+      }
+    },
+    username: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING
+      }
+    },
+    avatar: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.AVATAR_MUST_BE_STRING
+      }
+    },
+    cover_photo: {
+      optional: true,
+      isString: {
+        errorMessage: USERS_MESSAGES.COVER_PHOTO_MUST_BE_STRING
+      }
+    }
+  },
+  ['body']
+)
+export const verifyUserValidator = (req: Request, res: Response, next: NextFunction) => {
+  const { decoded_authorization }: any = req
+  const { verify }: any = decoded_authorization
+  if (verify !== UserVerifyStatus.Verified) {
+    return next(
+      new ErrorsWithStatus({
+        message: USERS_MESSAGES.USER_NOT_VERIFIED,
+        status: HTTP_STATUS.FORBIDDEN
+      })
+    )
+  }
+  next()
+}
 export const registerValidator = validate(checkRegisterValidator)
 export const loginValidator = validate(checkLoginValidator)
 export const accessTokenValidator = validate(checkAccessTokenValidator)
@@ -325,3 +406,4 @@ export const emailVerifyTokenValidator = validate(checkEmailVerifyTokenValidator
 export const forgotPasswordValidator = validate(checkForgotPasswordValidator)
 export const verifyForgotPasswordTokenValidator = validate(checkVerifyForgotPasswordTokenValidator)
 export const resetPasswordValidator = validate(checkResetPasswordValidator)
+export const updateMyProfileValidator = validate(checkUpdateMyProfileValidator)

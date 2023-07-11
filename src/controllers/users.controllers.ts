@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/messages'
-import { registerReqBody } from '~/models/requests/User.requests'
+import { registerReqBody, updateMyProfileReqBody } from '~/models/requests/User.requests'
 import databaseService from '~/services/database.services'
 // import User from '~/models/schemas/User.schema'
 // import databaseService from '~/services/database.services'
@@ -12,18 +12,14 @@ import usersService from '~/services/users.services'
 export const loginController = async (req: Request, res: Response) => {
   const { user }: any = req
   const userID: ObjectId = user._id
-  const result = await usersService.login(userID.toString())
+  const result = await usersService.login(userID.toString(), user.verify)
   res.json({
     message: USERS_MESSAGES.LOGIN_SUCCESS,
     result: result
   })
 }
 
-export const registerController = async (
-  req: Request<ParamsDictionary, any, registerReqBody>,
-  res: Response,
-  next: NextFunction
-) => {
+export const registerController = async (req: Request<ParamsDictionary, any, registerReqBody>, res: Response) => {
   const result = await usersService.register(req.body)
   res.json({
     message: USERS_MESSAGES.REGISTER_SUCCESS,
@@ -49,7 +45,7 @@ export const emailVerifyController = async (req: Request, res: Response) => {
     return res.status(HTTP_STATUS.NOT_FOUND).json({ message: USERS_MESSAGES.USER_NOT_FOUND })
   }
   // da verify r thi se ko bao loi va tra ve status 200
-  if (user.email_verify_token === '') {
+  if (user.email_verify_token === '' && user.verify === UserVerifyStatus.Verified) {
     return res.json({ message: USERS_MESSAGES.EMAIL_VERIFIED })
   }
 
@@ -82,7 +78,7 @@ export const resendEmailVerifyController = async (req: Request, res: Response) =
 export const forgotPasswordController = async (req: Request, res: Response) => {
   const { user }: any = req
   const { _id }: any = user
-  const result = await usersService.forgotPassword(_id.toString())
+  const result = await usersService.forgotPassword(_id.toString(), user.verify)
   res.json(result)
 }
 
@@ -107,5 +103,18 @@ export const getMyInforController = async (req: Request, res: Response) => {
   return res.json({
     message: USERS_MESSAGES.GET_ME_SUCCESS,
     result
+  })
+}
+
+export const updateMyInforController = async (
+  req: Request<ParamsDictionary, any, updateMyProfileReqBody>,
+  res: Response
+) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const user = await usersService.updateMyProfile(userId, req.body)
+  return res.json({
+    message: USERS_MESSAGES.UPDATE_MY_PROFILE_SUCCESS,
+    result: user
   })
 }
