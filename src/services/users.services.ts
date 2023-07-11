@@ -141,6 +141,9 @@ class UsersService {
       this.signAccessToken(userID, UserVerifyStatus.Verified),
       this.signRefreshToken(userID, UserVerifyStatus.Verified)
     ])
+    await databaseService.refreshTokens.insertOne(
+      new RefreshToken({ user_id: new ObjectId(userID), token: Refresh_token })
+    )
     return {
       AccessToken,
       Refresh_token
