@@ -106,6 +106,15 @@ export const getMyInforController = async (req: Request, res: Response) => {
   })
 }
 
+export const getProfileController = async (req: Request, res: Response) => {
+  const { username } = req.params
+  const result = await usersService.getProfile(username)
+  return res.json({
+    message: USERS_MESSAGES.GET_PROFILE_SUCCESS,
+    result
+  })
+}
+
 export const updateMyInforController = async (
   req: Request<ParamsDictionary, any, updateMyProfileReqBody>,
   res: Response
@@ -117,4 +126,28 @@ export const updateMyInforController = async (
     message: USERS_MESSAGES.UPDATE_MY_PROFILE_SUCCESS,
     result: user
   })
+}
+
+export const followController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const { follower_user_id } = req.body
+  const result = await usersService.follow(userId, follower_user_id)
+  res.json(result)
+}
+
+export const unFollowController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const { follower_user_id } = req.params
+  const result = await usersService.unfollow(userId, follower_user_id)
+  res.json(result)
+}
+
+export const changePasswordController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const { password } = req.body
+  const result = await usersService.changePassword(userId, password)
+  res.json(result)
 }

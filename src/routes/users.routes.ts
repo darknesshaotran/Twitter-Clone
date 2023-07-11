@@ -1,24 +1,30 @@
 import express from 'express'
 import {
   emailVerifyController,
+  followController,
   forgotPasswordController,
   getMyInforController,
+  getProfileController,
   loginController,
   logoutController,
   registerController,
   resendEmailVerifyController,
   resetPasswordController,
+  unFollowController,
   updateMyInforController,
   verifyForgotPasswordController
 } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
+  changePasswordValidator,
   emailVerifyTokenValidator,
+  followValidator,
   forgotPasswordValidator,
   loginValidator,
   refreshTokenValidator,
   registerValidator,
   resetPasswordValidator,
+  unFollowValidator,
   updateMyProfileValidator,
   verifyForgotPasswordTokenValidator,
   verifyUserValidator
@@ -108,14 +114,11 @@ usersRouter.post('/reset-password', resetPasswordValidator, wrapController(reset
  */
 usersRouter.get('/me', accessTokenValidator, wrapController(getMyInforController))
 /*
- * description : reset password
- * path : /reset-password
- * method : POST
- *  body : {
- *      forgot_password_token: string
- *      password: string
- *      confirm_password: string
- * }
+ * description : get my infor
+ * path : /me
+ * method : GET
+ * headers : { Authorization: Bearer <access_token> }
+ *  body : {}
  */
 usersRouter.patch(
   '/me',
@@ -126,9 +129,71 @@ usersRouter.patch(
 )
 /*
  * description : update my profile
- * path : /reset-password
+ * path : /me
+ * method : PATCH
+ * headers : { Authorization: Bearer <access_token> }
+ *  body : {
+ *      name ?: string
+ *      date_of_birth ?: string
+ *      bio ?: string
+ *      location?: string
+ *      website?: string
+ *      username?: string
+ *      avatar?: string
+ *      cover_photo?: string
+ * }
+ */
+usersRouter.get('/:username', wrapController(getProfileController))
+/*
+ * description : get user profile
+ * path : /:username
+ * method : GET
+ *  body : {}
+ */
+usersRouter.post(
+  '/follow',
+  accessTokenValidator,
+  verifyUserValidator,
+  followValidator,
+  wrapController(followController)
+)
+/*
+ * description : follow someone
+ * path : /follow
  * method : POST
  * headers : { Authorization: Bearer <access_token> }
- *  body : UserSchema
+ *  body : {
+ *    follower_user_id: string
+ * }
+ */
+usersRouter.delete(
+  '/unfollow/:follower_user_id',
+  accessTokenValidator,
+  verifyUserValidator,
+  unFollowValidator,
+  wrapController(unFollowController)
+)
+/*
+ * description : unfollow someone
+ * path : /unfollow/:follower_user_id
+ * method : DELETE
+ * headers : { Authorization: Bearer <access_token> }
+ *  body : {}
+ */
+usersRouter.put(
+  '/change-password',
+  accessTokenValidator,
+  verifyUserValidator,
+  changePasswordValidator,
+  wrapController(followController)
+)
+/*
+ * description : follow someone
+ * path : /follow
+ * method : POST
+ * headers : { Authorization: Bearer <access_token> }
+ *  body : {
+ *    follower_user_id: string
+ * }
  */
 export default usersRouter

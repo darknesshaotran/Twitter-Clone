@@ -10,6 +10,9 @@ import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
 import { USERS_MESSAGES } from '~/constants/messages'
 import { after } from 'node:test'
+import { ErrorsWithStatus } from '~/models/Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
+import Follower from '~/models/schemas/Follower.schema'
 dotenv.config()
 class UsersService {
   private signAccessToken = (userId: string, verifyStatus: UserVerifyStatus) => {
@@ -90,6 +93,7 @@ class UsersService {
       { _id: new ObjectId(userID) },
       {
         $set: {
+          username: `user${userID}`,
           email_verify_token: EmailVerifyToken
         }
       }
@@ -208,6 +212,29 @@ class UsersService {
     return user
   }
 
+  async getProfile(username: string) {
+    const user = await databaseService.users.findOne(
+      { username: username },
+      {
+        projection: {
+          password: 0,
+          email_verify_token: 0,
+          forgot_password_token: 0,
+          verify: 0,
+          updated_at: 0,
+          created_at: 0
+        }
+      }
+    )
+    if (user === null) {
+      throw new ErrorsWithStatus({
+        message: USERS_MESSAGES.USER_NOT_FOUND,
+        status: HTTP_STATUS.NOT_FOUND
+      })
+    }
+    return user
+  }
+
   async updateMyProfile(userID: string, payload: updateMyProfileReqBody) {
     const _payload = payload.date_of_birth ? { ...payload, date_of_birth: new Date(payload.date_of_birth) } : payload
     // findOneAndUpdate: sau khi update, tra ve document cua collection da update
@@ -231,6 +258,62 @@ class UsersService {
       }
     )
     return user.value
+  }
+
+  async follow(userID: string, follower_user_id: string) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(userID),
+      follower_user_id: new ObjectId(follower_user_id)
+    })
+    if (follower === null) {
+      const result = await databaseService.followers.insertOne(
+        new Follower({
+          user_id: new ObjectId(userID),
+          follower_user_id: new ObjectId(follower_user_id),
+          created_at: new Date()
+        })
+      )
+      return {
+        message: USERS_MESSAGES.FOLLOW_SUCCESS
+      }
+    }
+    return {
+      message: USERS_MESSAGES.FOLLOWED
+    }
+  }
+
+  async unfollow(userID: string, follower_user_id: string) {
+    const follower = await databaseService.followers.findOne({
+      user_id: new ObjectId(userID),
+      follower_user_id: new ObjectId(follower_user_id)
+    })
+    if (follower === null) {
+      return {
+        message: USERS_MESSAGES.ALREADY_UNFOLLOWED
+      }
+    }
+    await databaseService.followers.deleteOne({
+      user_id: new ObjectId(userID),
+      follower_user_id: new ObjectId(follower_user_id)
+    })
+    return {
+      message: USERS_MESSAGES.UNFOLLOW_SUCCESS
+    }
+  }
+
+  async changePassword(userID: string, password: string) {
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(userID) },
+      {
+        $set: {
+          password: hashPassword(password),
+          updated_at: new Date()
+        }
+      }
+    )
+    return {
+      message: USERS_MESSAGES.CHANGE_PASS_SUCCESS
+    }
   }
 }
 

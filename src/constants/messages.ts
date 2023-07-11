@@ -36,7 +36,18 @@ export const USERS_MESSAGES = {
   LOCATION_MUST_BE_STRING: 'location must be a string',
   WEBSITE_MUST_BE_STRING: 'website must be a string',
   USERNAME_MUST_BE_STRING: 'username must be a string',
+  USERNAME_MUST_BE_FROM_5_TO_30: "Username's length must be from 5 to 30 characters",
+  USERNAME_EXISTED: 'username already exists',
   AVATAR_MUST_BE_STRING: 'avatar url must be a string',
   COVER_PHOTO_MUST_BE_STRING: 'cover photo url must be a string',
   UPDATE_MY_PROFILE_SUCCESS: 'update profile successfully',
+  GET_PROFILE_SUCCESS: 'get profile successfully',
+  FOLLOW_SUCCESS: 'follow profile successfully',
+  INVALID_FOLLOWER_USER_ID: 'invalid user id',
+  FOLLOWED: 'followed',
+  ALREADY_UNFOLLOWED: 'already unfollowed',
+  UNFOLLOW_SUCCESS: 'unfollow success',
+  OLD_PASSWORD_REQUIRED: 'old password is required',
+  OLD_PASSWORD_NOT_MATCH: 'old password is not match',
+  CHANGE_PASS_SUCCESS: 'change password successfully'
 }

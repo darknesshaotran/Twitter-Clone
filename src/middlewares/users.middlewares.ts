@@ -7,6 +7,7 @@ import { USERS_MESSAGES } from '~/constants/messages'
 import { ErrorsWithStatus } from '~/models/Errors'
 import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
+import { hashPassword } from '~/utils/crypto'
 import { verifyToken } from '~/utils/jwt'
 import { validate } from '~/utils/validation'
 
@@ -368,6 +369,22 @@ const checkUpdateMyProfileValidator = checkSchema(
       optional: true,
       isString: {
         errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING
+      },
+      isLength: {
+        options: {
+          max: 30,
+          min: 5
+        },
+        errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_FROM_5_TO_30
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const user = await databaseService.users.findOne({ username: value })
+          if (user) {
+            throw new Error(USERS_MESSAGES.USERNAME_EXISTED)
+          }
+          return true
+        }
       }
     },
     avatar: {
@@ -385,6 +402,123 @@ const checkUpdateMyProfileValidator = checkSchema(
   },
   ['body']
 )
+
+const checkFollowValidator = checkSchema(
+  {
+    follower_user_id: {
+      custom: {
+        options: async (value, { req }) => {
+          if (!ObjectId.isValid(value)) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.INVALID_FOLLOWER_USER_ID,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const follower = await databaseService.users.findOne({ _id: new ObjectId(value) })
+          if (follower === null) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          return true
+        }
+      }
+    }
+  },
+  ['body']
+)
+const checkUnFollowValidator = checkSchema(
+  {
+    follower_user_id: {
+      custom: {
+        options: async (value, { req }) => {
+          if (!ObjectId.isValid(value)) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.INVALID_FOLLOWER_USER_ID,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const follower = await databaseService.users.findOne({ _id: new ObjectId(value) })
+          if (follower === null) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          return true
+        }
+      }
+    }
+  },
+  ['params']
+)
+const checkChangePasswordValidator = checkSchema(
+  {
+    old_password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.OLD_PASSWORD_REQUIRED
+      },
+      custom: {
+        options: async (value, { req }) => {
+          const { decoded_authorization } = req
+          const { userId } = decoded_authorization
+          const user = await databaseService.users.findOne({ _id: new ObjectId(userId) })
+          if (!user) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const { password } = user
+          if (hashPassword(value) !== password) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.OLD_PASSWORD_NOT_MATCH,
+              status: HTTP_STATUS.UNAUTHORIZED
+            })
+          }
+          return true
+        }
+      }
+    },
+    password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
+      },
+      isString: {
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRING
+      },
+      isStrongPassword: {
+        options: {
+          minLength: 8,
+          minLowercase: 1,
+          minUppercase: 0,
+          minNumbers: 1,
+          minSymbols: 0
+        },
+        errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
+      }
+    },
+    confirm_password: {
+      notEmpty: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
+      },
+      isString: {
+        errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_STRING
+      },
+      custom: {
+        options: (value, { req }) => {
+          if (value !== req.body.password) {
+            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_MUST_BE_THE_SAME_AS_PASSWORD)
+          }
+          return true
+        }
+      }
+    }
+  },
+  ['body']
+)
+
 export const verifyUserValidator = (req: Request, res: Response, next: NextFunction) => {
   const { decoded_authorization }: any = req
   const { verify }: any = decoded_authorization
@@ -407,3 +541,6 @@ export const forgotPasswordValidator = validate(checkForgotPasswordValidator)
 export const verifyForgotPasswordTokenValidator = validate(checkVerifyForgotPasswordTokenValidator)
 export const resetPasswordValidator = validate(checkResetPasswordValidator)
 export const updateMyProfileValidator = validate(checkUpdateMyProfileValidator)
+export const followValidator = validate(checkFollowValidator)
+export const unFollowValidator = validate(checkUnFollowValidator)
+export const changePasswordValidator = validate(checkChangePasswordValidator)
