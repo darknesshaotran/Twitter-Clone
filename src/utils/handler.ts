@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express'
 import path from 'path'
 import { File } from 'formidable'
-import { UPLOAD_TEMP_DIR } from '~/constants/dir'
+import { UPLOAD_IMAGE_TEMP_DIR, UPLOAD_VIDEO_TEMP_DIR } from '~/constants/dir'
 export const wrapController = (func: RequestHandler) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -12,14 +12,15 @@ export const wrapController = (func: RequestHandler) => {
   }
 }
 
-export const handlerUploadSingleImage = async (req: Request) => {
+export const handlerUploadImage = async (req: Request) => {
   const formidable = (await import('formidable')).default
   const form = formidable({
-    uploadDir: path.resolve(UPLOAD_TEMP_DIR), // luu file upload vao duong dan thu muc chi dinh
+    uploadDir: path.resolve(UPLOAD_IMAGE_TEMP_DIR), // luu file upload vao duong dan thu muc chi dinh
     // path.resolve('uploads'):  thu-muc-chua-project/uploads (Twitter-clone/uploads)
-    maxFiles: 1, // chi cho upload 1 file 1 lan
+    maxFiles: 4, // chi cho upload 1 file 1 lan
     keepExtensions: true, //giu lai duoi file extension (png, jpeg,pdf,..)
     maxFileSize: 3000 * 1024, // 300KB
+    maxTotalFileSize: 3000 * 1024 * 4,
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'image' && Boolean(mimetype?.includes('image'))
       if (!valid) {
@@ -42,7 +43,7 @@ export const handlerUploadSingleImage = async (req: Request) => {
   //   message: 'upload successfully'
   // })
   //c3:
-  return new Promise<File>((resolve, reject) => {
+  return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         reject(err)
@@ -51,7 +52,37 @@ export const handlerUploadSingleImage = async (req: Request) => {
       if (!Boolean(files.image)) {
         return reject(new Error('File is empty'))
       }
-      resolve((files.image as File[])[0])
+      resolve(files.image as File[])
+    })
+  })
+}
+
+export const handlerUploadVideo = async (req: Request) => {
+  const formidable = (await import('formidable')).default
+  const form = formidable({
+    uploadDir: path.resolve(UPLOAD_VIDEO_TEMP_DIR), // luu file upload vao duong dan thu muc chi dinh
+    maxFiles: 1, // chi cho upload 1 file 1 lan
+    keepExtensions: true, //giu lai duoi file extension (png, jpeg,pdf,..)
+    maxFileSize: 50 * 1024 * 1024, // 50mb
+    filter: function ({ name, originalFilename, mimetype }) {
+      const valid = name === 'video' && Boolean(mimetype?.includes('mp4') || mimetype?.includes('quicktime'))
+      if (!valid) {
+        form.emit('error' as any, new Error('file type is not valid') as any)
+      }
+      return valid
+    }
+  })
+  return new Promise<File[]>((resolve, reject) => {
+    form.parse(req, (err, fields, files) => {
+      console.log(files)
+      if (err) {
+        reject(err)
+      }
+      // eslint-disable-next-line no-extra-boolean-cast
+      if (!Boolean(files.video)) {
+        return reject(new Error('File is empty'))
+      }
+      resolve(files.video as File[])
     })
   })
 }
