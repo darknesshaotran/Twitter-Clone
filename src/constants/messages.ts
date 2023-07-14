@@ -50,5 +50,6 @@ export const USERS_MESSAGES = {
   UNFOLLOW_SUCCESS: 'unfollow success',
   OLD_PASSWORD_REQUIRED: 'old password is required',
   OLD_PASSWORD_NOT_MATCH: 'old password is not match',
-  CHANGE_PASS_SUCCESS: 'change password successfully'
+  CHANGE_PASS_SUCCESS: 'change password successfully',
+  UPLOAD_SUCCESS: 'upload successfully'
 }

@@ -122,7 +122,7 @@ class UsersService {
         }
       }
     )
-    console.log(EmailVerifyToken)
+    console.log('email verify token: ', EmailVerifyToken)
     return {
       AccessToken,
       Refresh_token
@@ -147,7 +147,6 @@ class UsersService {
     const data = await this.getOAuthGoogleToken(code)
     const { id_token, access_token } = data
     const userInfo = await this.getGoogleUserInfo(access_token, id_token)
-    console.log(userInfo)
     if (!userInfo.verified_email) {
       throw new ErrorsWithStatus({
         message: USERS_MESSAGES.EMAIL_IS_NOT_VERIFIED,
