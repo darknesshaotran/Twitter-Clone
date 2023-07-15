@@ -67,10 +67,9 @@ usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapCon
  */
 usersRouter.post('/refresh_token', refreshTokenValidator, wrapController(refreshTokenController))
 /*
- * description : click logout btn ,delete refresh token on db
- * path : /logout
+ * description : delete refresh token and add new refresh token to database, everytime when access token is expired
+ * path : /refresh_token
  * method : POST
- * headers : { Authorization: Bearer <access_token> }
  *  body : {
         Refresh_token: string
     }

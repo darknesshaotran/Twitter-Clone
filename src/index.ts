@@ -5,7 +5,11 @@ import { ErrorHandler } from './middlewares/error.middleware'
 import mediasRouter from './routes/medias.routes'
 import { UPLOAD_DIR } from './constants/dir'
 const app = express()
-databaseService.connect()
+databaseService.connect().then(() => {
+  databaseService.indexUsers()
+  databaseService.indexRefreshTokens()
+  databaseService.indexFollower()
+})
 const router = express.Router()
 const port = 3000
 app.use(express.json())
