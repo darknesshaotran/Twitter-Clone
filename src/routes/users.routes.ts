@@ -1,6 +1,7 @@
 import express from 'express'
 import {
   OAuthcontroller,
+  changePasswordController,
   emailVerifyController,
   followController,
   forgotPasswordController,
@@ -8,6 +9,7 @@ import {
   getProfileController,
   loginController,
   logoutController,
+  refreshTokenController,
   registerController,
   resendEmailVerifyController,
   resetPasswordController,
@@ -63,7 +65,16 @@ usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapCon
         Refresh_token: string
     }
  */
-
+usersRouter.post('/refresh_token', refreshTokenValidator, wrapController(refreshTokenController))
+/*
+ * description : click logout btn ,delete refresh token on db
+ * path : /logout
+ * method : POST
+ * headers : { Authorization: Bearer <access_token> }
+ *  body : {
+        Refresh_token: string
+    }
+ */
 usersRouter.get('/oauth/google', wrapController(OAuthcontroller))
 /* 
 sử dụng link sau để test oauth : "https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?client_id=46501919659-k16co3keoadtnq1s5la4qgq832e8a95n.apps.googleusercontent.com&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fusers%2Foauth%2Fgoogle&response_type=code&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&prompt=consent&access_type=offline&service=lso&o2v=2&flowName=GeneralOAuthFlow"
@@ -191,15 +202,17 @@ usersRouter.put(
   accessTokenValidator,
   verifyUserValidator,
   changePasswordValidator,
-  wrapController(followController)
+  wrapController(changePasswordController)
 )
 /*
- * description : follow someone
- * path : /follow
- * method : POST
+ * description : change password
+ * path : /change-password
+ * method : PUT
  * headers : { Authorization: Bearer <access_token> }
  *  body : {
- *    follower_user_id: string
+ *    old_password: string
+ *    password : string
+ *    confirm_password: string
  * }
  */
 export default usersRouter

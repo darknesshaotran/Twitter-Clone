@@ -45,6 +45,17 @@ export const logoutController = async (req: Request, res: Response) => {
   })
 }
 
+export const refreshTokenController = async (req: Request, res: Response) => {
+  const { decoded_refresh_token }: any = req
+  const { Refresh_token } = req.body
+  const { user_id, verify }: any = decoded_refresh_token
+  const result = await usersService.refreshToken(user_id, verify, Refresh_token)
+  return res.json({
+    message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
+    result
+  })
+}
+
 export const emailVerifyController = async (req: Request, res: Response) => {
   const { decoded_email_verify_token }: any = req
   // decoded_email_verify_token: { userID,token_type}
