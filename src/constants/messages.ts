@@ -1,3 +1,6 @@
+import { numberEnumToArray } from '~/utils/common'
+import { TweetAudience, TweetType } from './enums'
+
 export const USERS_MESSAGES = {
   VALIDATION_ERROR: 'Validation error',
   NAME_IS_REQUIRED: 'Name is required',
@@ -53,4 +56,16 @@ export const USERS_MESSAGES = {
   OLD_PASSWORD_NOT_MATCH: 'old password is not match',
   CHANGE_PASS_SUCCESS: 'change password successfully',
   UPLOAD_SUCCESS: 'upload successfully'
+}
+
+export const TWEETS_MESSAGES = {
+  TYPE_IS_IN_DEFAULT: `type must be in ${numberEnumToArray(TweetType)}`,
+  AUDIENCE_IS_IN_DEFAULT: `audience must be in ${numberEnumToArray(TweetAudience)}`,
+  PARENT_ID_MUST_BE_VALID_TWEET_ID: 'parentId must be valid tweet id',
+  PARENT_ID_MUST_BE_NULL: 'parentId must be null',
+  CONTENT_MUST_BE_EMPTY_STRING: 'content must be an empty string',
+  CONTENT_MUST_BE_STRING: 'content must be a string',
+  HASHTAG_MUST_BE_STRING: 'hashtag must be a string',
+  MENTION_MUST_BE_VALID_USER_ID: 'mention must be a valid user ID',
+  MEDIA_MUST_BE_ARRAY_MEDIA_OBJECT: "media must be Media's objects "
 }

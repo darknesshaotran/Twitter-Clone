@@ -231,21 +231,9 @@ class UsersService {
         }
       }
     )
-    const [AccessToken, Refresh_token] = await Promise.all([
-      this.signAccessToken(userID, UserVerifyStatus.Verified),
-      this.signRefreshToken(userID, UserVerifyStatus.Verified)
-    ])
-    const decoded_refresh_token = await this.decodeRefreshToken(Refresh_token)
-    await databaseService.refreshTokens.insertOne(
-      new RefreshToken({
-        user_id: new ObjectId(userID),
-        token: Refresh_token,
-        exp: decoded_refresh_token.exp as number
-      })
-    )
+    const data = await this.login(userID, UserVerifyStatus.Verified)
     return {
-      AccessToken,
-      Refresh_token
+      ...data
     }
   }
 
