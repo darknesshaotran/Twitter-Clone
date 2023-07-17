@@ -10,10 +10,17 @@ import TweetsService from '~/services/tweets.services'
 config()
 export const createTweetController = async (req: Request<ParamsDictionary, any, TweetRequestBody>, res: Response) => {
   const { decoded_authorization }: any = req
-  const { user_id }: any = decoded_authorization
-  const result = await TweetsService.createTweet(user_id, req.body)
+  const { userId }: any = decoded_authorization
+  const result = await TweetsService.createTweet(userId, req.body)
   return res.json({
     message: TWEETS_MESSAGES.CREATE_TWEET_SUCCESS,
     result
+  })
+}
+
+export const getTweetController = async (req: Request, res: Response) => {
+  res.json({
+    message: TWEETS_MESSAGES.GET_TWEET_SUCCESS,
+    result: 'ok'
   })
 }

@@ -5,6 +5,7 @@ import { ErrorHandler } from './middlewares/error.middleware'
 import mediasRouter from './routes/medias.routes'
 import { UPLOAD_DIR } from './constants/dir'
 import tweetsRouter from './routes/tweets.routes'
+import bookmarkRouter from './routes/bookmarks.routes'
 const app = express()
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -17,6 +18,7 @@ app.use(express.json())
 app.use('/users', usersRouter)
 app.use('/medias', mediasRouter)
 app.use('/tweets', tweetsRouter)
+app.use('/bookmarks', bookmarkRouter)
 app.use(express.static(UPLOAD_DIR))
 app.use(ErrorHandler)
 app.listen(port, () => console.log(`listening on  http://localhost:${port}`))

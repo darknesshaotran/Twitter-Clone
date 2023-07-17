@@ -95,4 +95,28 @@ const checkCreateTweetValidator = checkSchema(
   },
   ['body']
 )
+
+const checkTweet_IdValidator = checkSchema(
+  {
+    tweet_id: {
+      custom: {
+        options: async (value, { req }) => {
+          if (!ObjectId.isValid(value)) {
+            throw new Error(TWEETS_MESSAGES.TWEET_ID_IS_INVALID)
+          }
+          const tweet = await databaseService.tweets.findOne({ _id: new ObjectId(value) })
+          if (!tweet) {
+            throw new ErrorsWithStatus({
+              message: TWEETS_MESSAGES.TWEET_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          return true
+        }
+      }
+    }
+  },
+  ['params']
+)
 export const CreateTweetValidator = validate(checkCreateTweetValidator)
+export const Tweet_IdValidator = validate(checkTweet_IdValidator)

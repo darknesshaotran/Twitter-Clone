@@ -68,5 +68,13 @@ export const TWEETS_MESSAGES = {
   HASHTAG_MUST_BE_STRING: 'hashtag must be a string',
   MENTION_MUST_BE_VALID_USER_ID: 'mention must be a valid user ID',
   MEDIA_MUST_BE_ARRAY_MEDIA_OBJECT: "media must be Media's objects ",
-  CREATE_TWEET_SUCCESS: 'create tweet successfully'
+  CREATE_TWEET_SUCCESS: 'create tweet successfully',
+  TWEET_ID_IS_INVALID: 'Tweet id is invalid',
+  TWEET_NOT_FOUND: 'Tweet not found',
+  GET_TWEET_SUCCESS: 'get tweet successfully'
+}
+
+export const BOOKMARKS_MESSAGES = {
+  BOOKMARK_TWEET_SUCCESS: 'bookmark tweet successfully',
+  UNBOOKMARK_TWEET_SUCCESS: 'unbookmark tweet successfully'
 }
