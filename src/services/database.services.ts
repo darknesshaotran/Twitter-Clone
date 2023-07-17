@@ -3,6 +3,8 @@ import dotenv from 'dotenv'
 import User from '~/models/schemas/User.schema'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import Follower from '~/models/schemas/Follower.schema'
+import Tweet from '~/models/schemas/Tweet.schema'
+import Hashtag from '~/models/schemas/Hashtag.schema'
 // C2:  import { config } from 'dotenv'
 // config()
 dotenv.config()
@@ -45,7 +47,6 @@ class DatabaseService {
       this.users.createIndex({ username: 1 }, { unique: true })
     }
   }
-
   async indexFollower() {
     const exists = await this.followers.indexExists(['user_id_1_follower_user_id_1'])
     console.log(exists)
@@ -62,6 +63,12 @@ class DatabaseService {
   }
   get followers(): Collection<Follower> {
     return this.db.collection(process.env.DB_FOLLOWERS_COLLECTION as string)
+  }
+  get tweets(): Collection<Tweet> {
+    return this.db.collection(process.env.DB_TWEETS_COLLECTION as string)
+  }
+  get hashtags(): Collection<Hashtag> {
+    return this.db.collection(process.env.DB_HASHTAGS_COLLECTION as string)
   }
 }
 

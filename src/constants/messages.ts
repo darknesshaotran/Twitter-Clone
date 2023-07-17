@@ -67,5 +67,6 @@ export const TWEETS_MESSAGES = {
   CONTENT_MUST_BE_STRING: 'content must be a string',
   HASHTAG_MUST_BE_STRING: 'hashtag must be a string',
   MENTION_MUST_BE_VALID_USER_ID: 'mention must be a valid user ID',
-  MEDIA_MUST_BE_ARRAY_MEDIA_OBJECT: "media must be Media's objects "
+  MEDIA_MUST_BE_ARRAY_MEDIA_OBJECT: "media must be Media's objects ",
+  CREATE_TWEET_SUCCESS: 'create tweet successfully'
 }
