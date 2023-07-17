@@ -27,7 +27,7 @@ class LikesService {
   }
 
   async unlikeTweet(userID: string, tweet_id: string) {
-    const result = await databaseService.bookmarks.findOneAndDelete({
+    const result = await databaseService.likes.findOneAndDelete({
       user_id: new ObjectId(userID),
       tweet_id: new ObjectId(tweet_id)
     })
