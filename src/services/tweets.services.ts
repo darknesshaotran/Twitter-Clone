@@ -7,7 +7,7 @@ import Hashtag from '~/models/schemas/Hashtag.schema'
 
 config()
 class tweetsService {
-  async checkandCreateHashtags(hashtags: string[]) {
+  async checkAndCreateHashtags(hashtags: string[]) {
     const hashtagDocuments = await Promise.all(
       hashtags.map((hashtag) => {
         // tim hashtag trong database, neu khong co thi tao moi
@@ -25,7 +25,7 @@ class tweetsService {
   }
 
   async createTweet(userID: string, body: TweetRequestBody) {
-    const hashtags = await this.checkandCreateHashtags(body.hashtags)
+    const hashtags = await this.checkAndCreateHashtags(body.hashtags)
     const result = await databaseService.tweets.insertOne(
       new Tweet({
         type: body.type,
@@ -40,6 +40,27 @@ class tweetsService {
     )
     const data = await databaseService.tweets.findOne({ _id: result.insertedId })
     return data
+  }
+
+  async increaseView(tweet_id: string, userID?: string) {
+    const increase = userID ? { user_views: 1 } : { guest_views: 1 }
+    const result = await databaseService.tweets.findOneAndUpdate(
+      { _id: new ObjectId(tweet_id) },
+      {
+        $inc: increase
+      },
+      {
+        returnDocument: 'after',
+        projection: {
+          user_views: 1,
+          guest_views: 1
+        }
+      }
+    )
+    return result.value as {
+      user_views: number
+      guest_views: number
+    }
   }
 }
 const TweetsService = new tweetsService()
