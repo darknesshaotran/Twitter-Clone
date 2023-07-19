@@ -1,7 +1,7 @@
-import { options } from 'axios'
+import { Response, Request, NextFunction } from 'express'
 import { checkSchema } from 'express-validator'
 import { ObjectId } from 'mongodb'
-import { MediaType, TweetAudience, TweetType } from '~/constants/enums'
+import { MediaType, TweetAudience, TweetType, UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import { ErrorsWithStatus } from '~/models/Errors'
@@ -111,6 +111,7 @@ const checkTweet_IdValidator = checkSchema(
               status: HTTP_STATUS.NOT_FOUND
             })
           }
+          req.tweet = tweet
           return true
         }
       }
@@ -120,3 +121,34 @@ const checkTweet_IdValidator = checkSchema(
 )
 export const CreateTweetValidator = validate(checkCreateTweetValidator)
 export const Tweet_IdValidator = validate(checkTweet_IdValidator)
+export const AudienceValidator = async (req: Request, res: Response, next: NextFunction) => {
+  const { tweet }: any = req
+  if (tweet.audience === TweetAudience.TwitterCircle) {
+    // kiem tra user da dang nhap hay chua
+    const { decoded_authorization }: any = req
+    if (!decoded_authorization) {
+      throw new ErrorsWithStatus({
+        status: HTTP_STATUS.UNAUTHORIZED,
+        message: USERS_MESSAGES.ACCESS_TOKEN_REQUIRED
+      })
+    }
+    // kiem tra tai khoan nguoi dang tweet ( da bi ban hay bi khoa chua)
+    const author = await databaseService.users.findOne({ _id: new ObjectId(tweet.user_id) })
+    if (!author || author.verify === UserVerifyStatus.Banned) {
+      throw new ErrorsWithStatus({
+        status: HTTP_STATUS.NOT_FOUND,
+        message: USERS_MESSAGES.USER_NOT_FOUND
+      })
+    }
+    // kiem tra user co nam trong twitter_circle cua author hoac user là author
+    const { userId } = decoded_authorization
+    const isInTwitterCircle = author.twitter_circle.some((item) => item.toString() === userId)
+    if (!isInTwitterCircle && !(author._id.toString() === userId)) {
+      throw new ErrorsWithStatus({
+        status: HTTP_STATUS.FORBIDDEN,
+        message: TWEETS_MESSAGES.TWEET_IS_NOT_PUBLIC
+      })
+    }
+  }
+  next()
+}

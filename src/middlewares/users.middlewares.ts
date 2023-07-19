@@ -544,3 +544,11 @@ export const updateMyProfileValidator = validate(checkUpdateMyProfileValidator)
 export const followValidator = validate(checkFollowValidator)
 export const unFollowValidator = validate(checkUnFollowValidator)
 export const changePasswordValidator = validate(checkChangePasswordValidator)
+export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (req.headers.authorization) {
+      return middleware(req, res, next)
+    }
+    next()
+  }
+}
