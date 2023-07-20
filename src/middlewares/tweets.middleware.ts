@@ -249,7 +249,7 @@ const checkGetTweetsChildrenValidator = checkSchema(
       custom: {
         options: (value, { req }) => {
           const num = Number(value)
-          if (num > 100 || num < 0) {
+          if (num > 100 || num < 1) {
             throw new Error(TWEETS_MESSAGES.TWEET_LIMIT_RANGE)
           }
           return true
