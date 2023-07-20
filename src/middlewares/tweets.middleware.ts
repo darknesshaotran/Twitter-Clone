@@ -6,6 +6,7 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import { ErrorsWithStatus } from '~/models/Errors'
 import Tweet from '~/models/schemas/Tweet.schema'
+import tweetsRouter from '~/routes/tweets.routes'
 import databaseService from '~/services/database.services'
 import { numberEnumToArray } from '~/utils/common'
 import { validate } from '~/utils/validation'
@@ -183,7 +184,7 @@ const checkTweet_IdValidator = checkSchema(
                           input: '$tweet_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 1]
+                            $eq: ['$$item.type', TweetType.Retweet]
                           }
                         }
                       }
@@ -194,7 +195,7 @@ const checkTweet_IdValidator = checkSchema(
                           input: '$tweet_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 2]
+                            $eq: ['$$item.type', TweetType.Comment]
                           }
                         }
                       }
@@ -205,7 +206,7 @@ const checkTweet_IdValidator = checkSchema(
                           input: '$tweet_children',
                           as: 'item',
                           cond: {
-                            $eq: ['$$item.type', 3]
+                            $eq: ['$$item.type', TweetType.QuoteTweet]
                           }
                         }
                       }
@@ -234,8 +235,36 @@ const checkTweet_IdValidator = checkSchema(
   },
   ['params']
 )
+
+const checkGetTweetsChildrenValidator = checkSchema(
+  {
+    tweet_type: {
+      isIn: {
+        options: [numberEnumToArray(TweetType)],
+        errorMessage: TWEETS_MESSAGES.TYPE_IS_IN_DEFAULT
+      }
+    },
+    limit: {
+      isNumeric: true,
+      custom: {
+        options: (value, { req }) => {
+          const num = Number(value)
+          if (num > 100 || num < 0) {
+            throw new Error(TWEETS_MESSAGES.TWEET_LIMIT_RANGE)
+          }
+          return true
+        }
+      }
+    },
+    page: {
+      isNumeric: true
+    }
+  },
+  ['query']
+)
 export const CreateTweetValidator = validate(checkCreateTweetValidator)
 export const Tweet_IdValidator = validate(checkTweet_IdValidator)
+export const GetTweetsChildrenValidator = validate(checkGetTweetsChildrenValidator)
 export const AudienceValidator = async (req: Request, res: Response, next: NextFunction) => {
   const { tweet }: any = req
   if (tweet.audience === TweetAudience.TwitterCircle) {

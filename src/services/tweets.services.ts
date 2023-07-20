@@ -4,6 +4,7 @@ import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId, WithId } from 'mongodb'
 import Hashtag from '~/models/schemas/Hashtag.schema'
+import { TweetType } from '~/constants/enums'
 
 config()
 class tweetsService {
@@ -60,6 +61,162 @@ class tweetsService {
     return result.value as {
       user_views: number
       guest_views: number
+    }
+  }
+
+  async getTweetsChildren(tweet_id: string, page: number, limit: number, type: TweetType, userID?: string) {
+    const tweets = await databaseService.tweets
+      .aggregate<Tweet>([
+        {
+          $match: {
+            parent_id: new ObjectId(tweet_id),
+            type: type
+          }
+        },
+        {
+          $lookup: {
+            from: 'hashtags',
+            localField: 'hashtags',
+            foreignField: '_id',
+            as: 'hashtags'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'mentions',
+            foreignField: '_id',
+            as: 'mentions'
+          }
+        },
+        {
+          $addFields: {
+            mentions: {
+              $map: {
+                input: '$mentions',
+                as: 'mention',
+                in: {
+                  _id: '$$mention._id',
+                  name: '$$mention.name',
+                  username: '$$mention.username',
+                  email: '$$mention.email'
+                }
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'bookmarks',
+            localField: '_id',
+            foreignField: 'tweet_id',
+            as: 'bookmarks'
+          }
+        },
+        {
+          $lookup: {
+            from: 'likes',
+            localField: '_id',
+            foreignField: 'tweet_id',
+            as: 'likes'
+          }
+        },
+        {
+          $lookup: {
+            from: 'tweets',
+            localField: '_id',
+            foreignField: 'parent_id',
+            as: 'tweet_children'
+          }
+        },
+        {
+          $addFields: {
+            bookmarks: {
+              $size: '$bookmarks'
+            },
+            likes: {
+              $size: '$likes'
+            },
+            retweet_count: {
+              $size: {
+                $filter: {
+                  input: '$tweet_children',
+                  as: 'item',
+                  cond: {
+                    $eq: ['$$item.type', TweetType.Retweet]
+                  }
+                }
+              }
+            },
+            comment_count: {
+              $size: {
+                $filter: {
+                  input: '$tweet_children',
+                  as: 'item',
+                  cond: {
+                    $eq: ['$$item.type', TweetType.Comment]
+                  }
+                }
+              }
+            },
+            quote_count: {
+              $size: {
+                $filter: {
+                  input: '$tweet_children',
+                  as: 'item',
+                  cond: {
+                    $eq: ['$$item.type', TweetType.QuoteTweet]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            tweet_children: 0
+          }
+        },
+        {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray()
+
+    // tang view cua children tweet khi get duoc
+    const tweets_Ids = tweets.map((tweet) => tweet._id as ObjectId)
+    const increase = userID ? { user_views: 1 } : { guest_views: 1 }
+    await databaseService.tweets.updateMany(
+      {
+        _id: {
+          $in: tweets_Ids
+        }
+      },
+      {
+        $inc: increase
+      }
+    )
+
+    // doc tong so document cua tweet co id tweet cha
+    const total = await databaseService.tweets.countDocuments({
+      parent_id: new ObjectId(tweet_id),
+      type: type
+    })
+
+    // sua lai thong tin trong tweets de tra ve cho client
+    tweets.forEach((tweet) => {
+      if (userID) {
+        tweet.user_views += 1
+      } else {
+        tweet.guest_views += 1
+      }
+    })
+    return {
+      tweets,
+      total
     }
   }
 }

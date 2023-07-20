@@ -72,7 +72,8 @@ export const TWEETS_MESSAGES = {
   TWEET_ID_IS_INVALID: 'Tweet id is invalid',
   TWEET_NOT_FOUND: 'Tweet not found',
   GET_TWEET_SUCCESS: 'get tweet successfully',
-  TWEET_IS_NOT_PUBLIC: 'Tweet is not public'
+  TWEET_IS_NOT_PUBLIC: 'Tweet is not public',
+  TWEET_LIMIT_RANGE: 'Maximum limit is 100 and minimum limit is 1'
 }
 
 export const BOOKMARKS_MESSAGES = {
