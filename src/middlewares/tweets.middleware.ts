@@ -243,7 +243,13 @@ const checkGetTweetsChildrenValidator = checkSchema(
         options: [numberEnumToArray(TweetType)],
         errorMessage: TWEETS_MESSAGES.TYPE_IS_IN_DEFAULT
       }
-    },
+    }
+  },
+  ['query']
+)
+
+const checkPaginationValidator = checkSchema(
+  {
     limit: {
       isNumeric: true,
       custom: {
@@ -265,6 +271,7 @@ const checkGetTweetsChildrenValidator = checkSchema(
 export const CreateTweetValidator = validate(checkCreateTweetValidator)
 export const Tweet_IdValidator = validate(checkTweet_IdValidator)
 export const GetTweetsChildrenValidator = validate(checkGetTweetsChildrenValidator)
+export const PaginationValidator = validate(checkPaginationValidator)
 export const AudienceValidator = async (req: Request, res: Response, next: NextFunction) => {
   const { tweet }: any = req
   if (tweet.audience === TweetAudience.TwitterCircle) {

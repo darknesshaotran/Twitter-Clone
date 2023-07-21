@@ -1,6 +1,17 @@
 import express from 'express'
-import { createTweetController, getTweetChildrenController, getTweetController } from '~/controllers/tweets.controllers'
-import { AudienceValidator, CreateTweetValidator, GetTweetsChildrenValidator, Tweet_IdValidator } from '~/middlewares/tweets.middleware'
+import {
+  createTweetController,
+  getNewFeedsController,
+  getTweetChildrenController,
+  getTweetController
+} from '~/controllers/tweets.controllers'
+import {
+  AudienceValidator,
+  CreateTweetValidator,
+  GetTweetsChildrenValidator,
+  PaginationValidator,
+  Tweet_IdValidator
+} from '~/middlewares/tweets.middleware'
 import { accessTokenValidator, isUserLoggedInValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapController } from '~/utils/handler'
 
@@ -29,7 +40,7 @@ tweetsRouter.get(
 )
 /*
  * description : get tweet
- * path : //:tweet_id
+ * path : /:tweet_id
  * method : get
  * headers : { Authorization ?: Bearer <access_token> }
  */
@@ -37,6 +48,7 @@ tweetsRouter.get(
 tweetsRouter.get(
   '/:tweet_id/children',
   Tweet_IdValidator,
+  PaginationValidator,
   GetTweetsChildrenValidator,
   isUserLoggedInValidator(accessTokenValidator),
   isUserLoggedInValidator(verifyUserValidator),
@@ -50,4 +62,20 @@ tweetsRouter.get(
  * headers : { Authorization ?: Bearer <access_token> }
  * query: { limit : number, page: number, tweet_type:  TweetType }
  */
+
+tweetsRouter.get(
+  '/',
+  PaginationValidator,
+  accessTokenValidator,
+  verifyUserValidator,
+  wrapController(getNewFeedsController)
+)
+/*
+ * description : get new feed
+ * path : /
+ * method : get
+ * headers : { Authorization ?: Bearer <access_token> }
+ * query: { limit : number, page: number, tweet_type:  TweetType }
+ */
+
 export default tweetsRouter

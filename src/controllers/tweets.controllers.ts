@@ -56,3 +56,11 @@ export const getTweetChildrenController = async (req: Request, res: Response) =>
     }
   })
 }
+
+export const getNewFeedsController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const userId = decoded_authorization.userId
+  const { limit, page } = req.query
+  const result = await TweetsService.getNewFeeds(userId, Number(limit), Number(page))
+  res.json(result)
+}

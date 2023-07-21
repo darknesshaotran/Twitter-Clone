@@ -219,6 +219,25 @@ class tweetsService {
       total
     }
   }
+
+  async getNewFeeds(userID: string, limit: number, page: number) { 
+    //get ra danh sach nguoi ma minh dang follow , tra ve 1 danh sach mang ObjectId
+    const follower_user_ids = await databaseService.followers
+      .find(
+        { user_id: new ObjectId(userID) },
+        {
+          projection: {
+            follower_user_id: 1
+          }
+        }
+      )
+      .toArray()
+    // danh sach mang objectId nhung nguoi ma minh follow
+    const ids = follower_user_ids.map((follower_user_id) => follower_user_id.follower_user_id)
+    // them objectId cua ban than vao danh sach mang nay (co the xem tweet ban than va nhung nguoi ma minh follow)
+    ids.push(new ObjectId(userID))
+    return ids
+  }
 }
 const TweetsService = new tweetsService()
 export default TweetsService
