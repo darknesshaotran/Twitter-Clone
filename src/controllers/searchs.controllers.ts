@@ -2,6 +2,7 @@ import { config } from 'dotenv'
 import { Response, Request, NextFunction } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { ObjectId } from 'mongodb'
+import { MediaTypeQuery } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 import databaseService from '~/services/database.services'
@@ -10,10 +11,17 @@ import TweetsService from '~/services/tweets.services'
 config()
 
 export const searchController = async (req: Request, res: Response) => {
-  const { content, limit, page } = req.query
+  const { content, limit, page, media_type, people_follow } = req.query
   const { decoded_authorization }: any = req
   const userId = decoded_authorization?.userId
-  const { tweets, total } = await searchService.searchTweet(content as string, Number(page), Number(limit), userId)
+  const { tweets, total } = await searchService.searchTweet(
+    content as string,
+    Number(page),
+    Number(limit),
+    userId,
+    media_type as MediaTypeQuery,
+    people_follow as string
+  )
   res.json({
     message: 'search successfully',
     tweets,
