@@ -1,5 +1,5 @@
 import express from 'express'
-import { BookmarkTweetController, UnBookmarkTweetController } from '~/controllers/bookmarks.controller'
+import { BookmarkTweetController, UnBookmarkTweetController } from '~/controllers/bookmarks.controllers'
 import { Tweet_IdValidator } from '~/middlewares/tweets.middleware'
 import { accessTokenValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapController } from '~/utils/handler'

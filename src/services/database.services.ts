@@ -7,6 +7,7 @@ import Tweet from '~/models/schemas/Tweet.schema'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
+import { text } from 'stream/consumers'
 // C2:  import { config } from 'dotenv'
 // config()
 dotenv.config()
@@ -54,6 +55,13 @@ class DatabaseService {
     console.log(exists)
     if (!exists) {
       this.followers.createIndex({ user_id: 1, follower_user_id: 1 })
+    }
+  }
+  async indexTweet() {
+    const exists = await this.tweets.indexExists(['content_text'])
+    console.log(exists)
+    if (!exists) {
+      this.tweets.createIndex({ content: 'text' })
     }
   }
 

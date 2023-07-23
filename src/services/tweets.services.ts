@@ -461,6 +461,7 @@ class tweetsService {
         $inc: { user_views: 1 }
       }
     )
+    // cap nhap tweets tra ve client
     tweets.forEach((tweet) => {
       tweet.user_views += 1
     })

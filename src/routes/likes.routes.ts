@@ -1,5 +1,5 @@
 import express from 'express'
-import { UnlikeTweetController, likeTweetController } from '~/controllers/likes.controller'
+import { UnlikeTweetController, likeTweetController } from '~/controllers/likes.controllers'
 import { Tweet_IdValidator } from '~/middlewares/tweets.middleware'
 import { accessTokenValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapController } from '~/utils/handler'
