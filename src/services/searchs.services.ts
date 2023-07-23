@@ -27,7 +27,7 @@ class SearchService {
       }
     }
     // neu co people_follow trong query thi loc ra cac tweet cua nhung nguoi minh theo doi(1) hoac khong(0)
-    if (people_follow) {
+    if (people_follow && people_follow === '1') {
       //get ra danh sach nguoi ma minh dang follow , tra ve 1 danh sach mang ObjectId
       const follower_user_ids = await databaseService.followers
         .find(
