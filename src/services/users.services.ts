@@ -12,6 +12,7 @@ import { USERS_MESSAGES } from '~/constants/messages'
 import { ErrorsWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import Follower from '~/models/schemas/Follower.schema'
+import { sendVerifyEmail } from '~/utils/email'
 dotenv.config()
 class UsersService {
   private signAccessToken = (userId: string, verifyStatus: UserVerifyStatus) => {
@@ -139,6 +140,17 @@ class UsersService {
       }
     )
     console.log('email verify token: ', EmailVerifyToken)
+    await sendVerifyEmail(
+      payload.email,
+      'Verify email',
+      `
+        <h1>Verify your email</h1>
+        <p>click 
+          <a href="${process.env.CLIENT_HOME_REDIRECT}/verify-email?token=${EmailVerifyToken}">Here</a>
+          to verify your email
+        </p>
+      `
+    )
     return {
       AccessToken,
       Refresh_token
@@ -237,8 +249,19 @@ class UsersService {
     }
   }
 
-  async resendVerifyEmail(userID: string) {
+  async resendVerifyEmail(userID: string, email: string) {
     const email_verify_token = await this.signEmailVerifyToken(userID, UserVerifyStatus.Unverified)
+    await sendVerifyEmail(
+      email,
+      'Verify email',
+      `
+        <h1>Verify your email</h1>
+        <p>click 
+          <a href="${process.env.CLIENT_HOME_REDIRECT}/verify-email?token=${email_verify_token}">Here</a>
+          to verify your email
+        </p>
+      `
+    )
     await databaseService.users.updateOne(
       { _id: new ObjectId(userID) },
       {
