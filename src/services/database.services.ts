@@ -61,7 +61,7 @@ class DatabaseService {
     const exists = await this.tweets.indexExists(['content_text'])
     console.log(exists)
     if (!exists) {
-      this.tweets.createIndex({ content: 'text' })
+      this.tweets.createIndex({ content: 'text' }, { default_language: 'none' })
     }
   }
 

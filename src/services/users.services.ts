@@ -278,14 +278,14 @@ class UsersService {
 
   async forgotPassword(userID: string, verify: UserVerifyStatus, email: string) {
     const forgot_password_token = await this.signForgotPasswordToken(userID, verify)
-    sendVerifyEmail(
+    await sendVerifyEmail(
       email,
       'forgot password email',
       `
         <h1>forgot password email</h1>
         <p>click 
-          <a href="${process.env.CLIENT_HOME_REDIRECT}/reset-email?token=${forgot_password_token}">Here</a>
-          to verify your email
+          <a href="${process.env.CLIENT_HOME_REDIRECT}/reset-password?token=${forgot_password_token}">Here</a>
+          to reset your password
         </p>
       `
     )
