@@ -276,8 +276,19 @@ class UsersService {
     }
   }
 
-  async forgotPassword(userID: string, verify: UserVerifyStatus) {
+  async forgotPassword(userID: string, verify: UserVerifyStatus, email: string) {
     const forgot_password_token = await this.signForgotPasswordToken(userID, verify)
+    sendVerifyEmail(
+      email,
+      'forgot password email',
+      `
+        <h1>forgot password email</h1>
+        <p>click 
+          <a href="${process.env.CLIENT_HOME_REDIRECT}/reset-email?token=${forgot_password_token}">Here</a>
+          to verify your email
+        </p>
+      `
+    )
     await databaseService.users.updateOne(
       { _id: new ObjectId(userID) },
       {
