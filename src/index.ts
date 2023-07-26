@@ -8,6 +8,7 @@ import tweetsRouter from './routes/tweets.routes'
 import bookmarkRouter from './routes/bookmarks.routes'
 import likeRouter from './routes/likes.routes'
 import searchRouter from './routes/searchs.routes'
+import '~/utils/s3'
 const app = express()
 databaseService.connect().then(() => {
   databaseService.indexUsers()
