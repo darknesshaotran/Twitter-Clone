@@ -36,15 +36,22 @@ class MediasService {
 
   async UploadVideo(req: Request) {
     const files = await handlerUploadVideo(req)
-    const data: Media[] = files.map((file) => {
-      const { newFilename } = file
-      return {
-        url: isProduction
-          ? `${process.env.HOST_DOMAIN}/medias/videos/${newFilename.split('.')[0]}.mp4`
-          : `http://localhost:3000/videos/temp/${newFilename.split('.')[0]}.mp4`,
-        type: MediaType.video
-      }
-    })
+    const data: Media[] = await Promise.all(
+      files.map(async (file) => {
+        const { newFilename, filepath, mimetype } = file
+        const newName = `${newFilename.split('.')[0]}.mp4`
+        const s3Result = await uploadFileToS3({
+          fileName: 'videos/' + newName,
+          filePath: filepath,
+          contentType: mimetype as string
+        })
+        fs.unlinkSync(filepath)
+        return {
+          url: (s3Result as CompleteMultipartUploadCommandOutput).Location as string,
+          type: MediaType.video
+        }
+      })
+    )
     return data
   }
 }
