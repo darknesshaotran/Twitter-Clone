@@ -8,8 +8,13 @@ import tweetsRouter from './routes/tweets.routes'
 import bookmarkRouter from './routes/bookmarks.routes'
 import likeRouter from './routes/likes.routes'
 import searchRouter from './routes/searchs.routes'
-import '~/utils/s3'
+import cors from 'cors'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
+import { create } from 'axios'
 const app = express()
+const httpServer = createServer(app)
+app.use(cors())
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
@@ -27,4 +32,16 @@ app.use('/likes', likeRouter)
 app.use('/search', searchRouter)
 app.use(express.static(UPLOAD_DIR))
 app.use(ErrorHandler)
-app.listen(port, () => console.log(`listening on  http://localhost:${port}`))
+
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:4000'
+  }
+})
+io.on('connection', (socket) => {
+  console.log(`user ${socket.id} connected`)
+  socket.on('disconnect', () => {
+    console.log(`user ${socket.id} disconnected`)
+  })
+})
+httpServer.listen(port, () => console.log(`listening on  http://localhost:${port}`))

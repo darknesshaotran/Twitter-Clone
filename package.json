@@ -55,6 +55,7 @@
     "jsonwebtoken": "^9.0.0",
     "minimist": "^1.2.8",
     "mongodb": "^5.6.0",
-    "sharp": "^0.32.2"
+    "sharp": "^0.32.2",
+    "socket.io": "^4.7.1"
   }
 }
