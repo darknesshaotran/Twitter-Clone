@@ -35,13 +35,28 @@ app.use(ErrorHandler)
 
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:4000'
+    origin: 'http://127.0.0.1:5500'
   }
 })
+const users: { [key: string]: { socket_id: string } } = {}
 io.on('connection', (socket) => {
-  console.log(`user ${socket.id} connected`)
+  // console.log(socket.handshake.auth)
+  const user_id = socket.handshake.auth._id
+  users[user_id] = {
+    socket_id: socket.id
+  }
+  console.log(users)
+  // socket.on('go', (e) => console.log(e))
+
+  socket.on('privateMessage', (e) => {
+    const receiver_socket_id = users[e.to].socket_id
+    socket.to(receiver_socket_id).emit('receive privateMessage', { value: e.value, from: user_id })
+  })
+
   socket.on('disconnect', () => {
+    delete users[user_id]
     console.log(`user ${socket.id} disconnected`)
+    console.log(users)
   })
 })
 httpServer.listen(port, () => console.log(`listening on  http://localhost:${port}`))
