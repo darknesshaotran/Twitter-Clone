@@ -12,6 +12,7 @@ import cors from 'cors'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { create } from 'axios'
+import Conversation from './models/schemas/Conversation.schema'
 const app = express()
 const httpServer = createServer(app)
 app.use(cors())
@@ -48,11 +49,18 @@ io.on('connection', (socket) => {
   console.log(users)
   // socket.on('go', (e) => console.log(e))
 
-  socket.on('privateMessage', (e) => {
+  socket.on('privateMessage', async (e) => {
     const receiver_socket_id = users[e.to].socket_id
+    await databaseService.conversations.insertOne(
+      new Conversation({
+        sender_id: e.from,
+        receiver_id: e.to,
+        content: e.content
+      })
+    )
     socket
       .to(receiver_socket_id)
-      .emit('receive privateMessage', { value: e.value, from: user_id, nameSender: e.nameSender })
+      .emit('receive privateMessage', { content: e.content, from: user_id, nameSender: e.nameSender })
   })
 
   socket.on('disconnect', () => {

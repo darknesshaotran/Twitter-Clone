@@ -8,6 +8,7 @@ import Hashtag from '~/models/schemas/Hashtag.schema'
 import Bookmark from '~/models/schemas/Bookmark.schema'
 import Like from '~/models/schemas/Like.schema'
 import { text } from 'stream/consumers'
+import Conversation from '~/models/schemas/Conversation.schema'
 // C2:  import { config } from 'dotenv'
 // config()
 dotenv.config()
@@ -85,6 +86,9 @@ class DatabaseService {
   }
   get likes(): Collection<Like> {
     return this.db.collection(process.env.DB_LIKES_COLLECTION as string)
+  }
+  get conversations(): Collection<Conversation> {
+    return this.db.collection(process.env.DB_CONVERSATIONS_COLLECTION as string)
   }
 }
 
