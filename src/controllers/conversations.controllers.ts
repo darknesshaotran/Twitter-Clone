@@ -7,7 +7,8 @@ export const getConversationController = async (req: Request, res: Response) => 
   const { userId }: any = decoded_authorization
   const sender_id = userId
   const receiver_id = req.params.receiver_id
+  const { limit, page } = req.query
   console.log(receiver_id, sender_id)
-  const conservations = await conversationService.getConversations(sender_id, receiver_id)
-  res.json(conservations)
+  const result = await conversationService.getConversations(sender_id, receiver_id, Number(limit), Number(page))
+  res.json(result)
 }

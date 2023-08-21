@@ -6,14 +6,27 @@ import Bookmark from '~/models/schemas/Bookmark.schema'
 
 config()
 class ConversationService {
-  async getConversations(sender_id: string, receiver_id: string) {
+  async getConversations(sender_id: string, receiver_id: string, limit: number, page: number) {
+    const match = {
+      $or: [
+        {
+          sender_id: new ObjectId(sender_id),
+          receiver_id: new ObjectId(receiver_id)
+        },
+        {
+          sender_id: new ObjectId(receiver_id),
+          receiver_id: new ObjectId(sender_id)
+        }
+      ]
+    }
+    const total = await databaseService.conversations.countDocuments(match)
+    const total_page = Math.ceil(total / limit)
     const conversations = await databaseService.conversations
-      .find({
-        sender_id: new ObjectId(sender_id),
-        receiver_id: new ObjectId(receiver_id)
-      })
+      .find(match)
+      .skip(limit * (page - 1))
+      .limit(limit)
       .toArray()
-    return conversations
+    return { conversations, total_page, page, limit }
   }
 }
 const conversationService = new ConversationService()
