@@ -13,6 +13,8 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { create } from 'axios'
 import Conversation from './models/schemas/Conversation.schema'
+import conversationRouter from './routes/conversations.routes'
+import { ObjectId } from 'mongodb'
 const app = express()
 const httpServer = createServer(app)
 app.use(cors())
@@ -31,6 +33,7 @@ app.use('/tweets', tweetsRouter)
 app.use('/bookmarks', bookmarkRouter)
 app.use('/likes', likeRouter)
 app.use('/search', searchRouter)
+app.use('/conversation', conversationRouter)
 app.use(express.static(UPLOAD_DIR))
 app.use(ErrorHandler)
 
@@ -53,8 +56,8 @@ io.on('connection', (socket) => {
     const receiver_socket_id = users[e.to].socket_id
     await databaseService.conversations.insertOne(
       new Conversation({
-        sender_id: e.from,
-        receiver_id: e.to,
+        sender_id: new ObjectId(e.from),
+        receiver_id: new ObjectId(e.to),
         content: e.content
       })
     )
