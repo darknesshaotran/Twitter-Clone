@@ -50,7 +50,9 @@ io.on('connection', (socket) => {
 
   socket.on('privateMessage', (e) => {
     const receiver_socket_id = users[e.to].socket_id
-    socket.to(receiver_socket_id).emit('receive privateMessage', { value: e.value, from: user_id })
+    socket
+      .to(receiver_socket_id)
+      .emit('receive privateMessage', { value: e.value, from: user_id, nameSender: e.nameSender })
   })
 
   socket.on('disconnect', () => {

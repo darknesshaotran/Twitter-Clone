@@ -39,7 +39,7 @@ fetch('http://localhost:3000/users/me', {
     
     socket.on('receive privateMessage', (e)=> {
       var message = list.innerHTML
-      message += `<li style="color:red">${e.from}: ${e.value}</li>`
+      message += `<li style="color:white;padding:10px;margin-bottom:5px;background:grey;border-radius:10px">${e.nameSender} (${e.from}): ${e.value}</li>`
       list.innerHTML = message
     })
 ///////////////////////////////////////////
@@ -47,10 +47,10 @@ fetch('http://localhost:3000/users/me', {
       var value = input.value
       input.value = ''
       var message = list.innerHTML
-      message += `<li style="color:green">${response.result._id}: ${value}</li>`
+      message += `<li style="color:white;padding:10px;margin-bottom:5px;background:blue;border-radius:10px">${response.result.name}(${response.result._id}): ${value}</li>`
       list.innerHTML = message
       var id  = response.result._id != '64c085550db5a3eee4acfe62' ? '64c085550db5a3eee4acfe62' : '64b561c72a914b785a5693d6'
-      socket.emit("privateMessage",{value: value, to:id})
+      socket.emit("privateMessage",{value: value, to:id, nameSender: response.result.name})
       
     }
   })
