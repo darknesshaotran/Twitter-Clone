@@ -428,6 +428,31 @@ const checkFollowValidator = checkSchema(
   },
   ['body']
 )
+const checkConversationValidator = checkSchema(
+  {
+    receiver_id: {
+      custom: {
+        options: async (value, { req }) => {
+          if (!ObjectId.isValid(value)) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.INVALID_FOLLOWER_USER_ID,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          const user = await databaseService.users.findOne({ _id: new ObjectId(value) })
+          if (user === null) {
+            throw new ErrorsWithStatus({
+              message: USERS_MESSAGES.USER_NOT_FOUND,
+              status: HTTP_STATUS.NOT_FOUND
+            })
+          }
+          return true
+        }
+      }
+    }
+  },
+  ['params']
+)
 const checkUnFollowValidator = checkSchema(
   {
     follower_user_id: {
@@ -544,6 +569,7 @@ export const updateMyProfileValidator = validate(checkUpdateMyProfileValidator)
 export const followValidator = validate(checkFollowValidator)
 export const unFollowValidator = validate(checkUnFollowValidator)
 export const changePasswordValidator = validate(checkChangePasswordValidator)
+export const conversationValidator = validate(checkConversationValidator)
 export const isUserLoggedInValidator = (middleware: (req: Request, res: Response, next: NextFunction) => void) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (req.headers.authorization) {

@@ -40,10 +40,10 @@ fetch('http://localhost:3000/users/me', {
     for ( let i = 0; i < a.conversations.length; i++){
       if(a.conversations[i].sender_id === response.result._id)
       {
-        message+=`<li style="color:white;padding:10px;margin-bottom:5px;background:blue;border-radius:10px">${response.result.name}(${response.result._id}): ${a.conversations[i].content}</li>`
+        message+=`<li style="color:white;padding:10px;margin-bottom:5px;background:blue;border-radius:10px">${response.result.name}(${a.conversations[i].sender_id}): ${a.conversations[i].content}</li>`
       }
       else {
-        message+=`<li style="color:white;padding:10px;margin-bottom:5px;background:grey;border-radius:10px"> (${a.conversations[i].receiver_id}): ${a.conversations[i].content}</li>`
+        message+=`<li style="color:white;padding:10px;margin-bottom:5px;background:grey;border-radius:10px"> (${a.conversations[i].sender_id}): ${a.conversations[i].content}</li>`
       }
     }
     list.innerHTML = message
@@ -60,9 +60,10 @@ fetch('http://localhost:3000/users/me', {
     }
     socket.on('connect',()=>console.log('user connect'))
     
-    socket.on('receive privateMessage', (e)=> {
+    socket.on('receive_Message', (data)=> {
       var message = list.innerHTML
-      message += `<li style="color:white;padding:10px;margin-bottom:5px;background:grey;border-radius:10px">${e.nameSender} (${e.from}): ${e.content}</li>`
+      const { payload } = data
+      message += `<li style="color:white;padding:10px;margin-bottom:5px;background:grey;border-radius:10px">${payload.nameSender} (${payload.sender_id}): ${payload.content}</li>`
       list.innerHTML = message
     })
 ///////////////////////////////////////////
@@ -72,8 +73,13 @@ fetch('http://localhost:3000/users/me', {
       var message = list.innerHTML
       message += `<li style="color:white;padding:10px;margin-bottom:5px;background:blue;border-radius:10px">${response.result.name}(${response.result._id}): ${value}</li>`
       list.innerHTML = message
-      var id  = response.result._id != '64c085550db5a3eee4acfe62' ? '64c085550db5a3eee4acfe62' : '64b561c72a914b785a5693d6'
-      socket.emit("privateMessage",{content: value, to:id, from:response.result._id ,nameSender: response.result.name})
+      var receiver_id  = response.result._id != '64c085550db5a3eee4acfe62' ? '64c085550db5a3eee4acfe62' : '64b561c72a914b785a5693d6'
+      const payload = {
+        sender_id: response.result._id,
+        receiver_id: receiver_id,
+        content: value
+      }
+      socket.emit("sendMessage",{payload: payload})
       
     }
   })

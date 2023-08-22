@@ -49,27 +49,28 @@ io.on('connection', (socket) => {
   users[user_id] = {
     socket_id: socket.id
   }
-  console.log(users)
+  // console.log(users)
   // socket.on('go', (e) => console.log(e))
 
-  socket.on('privateMessage', async (e) => {
-    const receiver_socket_id = users[e.to].socket_id
-    await databaseService.conversations.insertOne(
-      new Conversation({
-        sender_id: new ObjectId(e.from),
-        receiver_id: new ObjectId(e.to),
-        content: e.content
-      })
-    )
-    socket
-      .to(receiver_socket_id)
-      .emit('receive privateMessage', { content: e.content, from: user_id, nameSender: e.nameSender })
+  socket.on('sendMessage', async (data) => {
+    const { payload } = data
+    const receiver_socket_id = users[payload.receiver_id]?.socket_id
+    if (!receiver_socket_id) return
+    const conversation = new Conversation({
+      sender_id: new ObjectId(payload.sender_id),
+      receiver_id: new ObjectId(payload.receiver_id),
+      content: payload.content
+    })
+    const result = await databaseService.conversations.insertOne(conversation)
+    conversation._id = result.insertedId
+
+    socket.to(receiver_socket_id).emit('receive_Message', { payload: conversation })
   })
 
   socket.on('disconnect', () => {
     delete users[user_id]
     console.log(`user ${socket.id} disconnected`)
-    console.log(users)
+    // console.log(users)
   })
 })
 httpServer.listen(port, () => console.log(`listening on  http://localhost:${port}`))

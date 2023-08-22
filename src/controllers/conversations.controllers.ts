@@ -8,7 +8,7 @@ export const getConversationController = async (req: Request, res: Response) => 
   const sender_id = userId
   const receiver_id = req.params.receiver_id
   const { limit, page } = req.query
-  console.log(receiver_id, sender_id)
+  // console.log(receiver_id, sender_id)
   const result = await conversationService.getConversations(sender_id, receiver_id, Number(limit), Number(page))
   res.json(result)
 }
