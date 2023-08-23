@@ -37,7 +37,7 @@ fetch('http://localhost:3000/users/me', {
   .then((a)=>{
     console.log(a)
     var message = ''
-    for ( let i = 0; i < a.conversations.length; i++){
+    for ( let i = a.conversations.length-1; i >= 0; i--){
       if(a.conversations[i].sender_id === response.result._id)
       {
         message+=`<li style="color:white;padding:10px;margin-bottom:5px;background:blue;border-radius:10px">${response.result.name}(${a.conversations[i].sender_id}): ${a.conversations[i].content}</li>`
@@ -56,8 +56,10 @@ fetch('http://localhost:3000/users/me', {
     alert(`hello ${response.result.name}`)
     const socket = io('http://localhost:3000')
     socket.auth =  {
-      _id : response.result._id,
+      // _id : response.result._id,
+       Authorization: token
     }
+    socket.on('connect_error',(error)=>console.log(error.data))
     socket.on('connect',()=>console.log('user connect'))
     
     socket.on('receive_Message', (data)=> {
