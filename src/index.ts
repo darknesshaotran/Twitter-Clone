@@ -48,7 +48,7 @@ const io = new Server(httpServer, {
   }
 })
 const users: { [key: string]: { socket_id: string } } = {}
-
+// server instance middleware
 io.use(async (socket, next) => {
   const Authorization = socket.handshake.auth.Authorization
   try {
@@ -68,6 +68,7 @@ io.use(async (socket, next) => {
       })
     }
     socket.handshake.auth.decoded_authorization = decoded_authorization
+    socket.handshake.auth.accessToken = accessToken
     next()
   } catch (error) {
     return next({
@@ -84,8 +85,20 @@ io.on('connection', (socket) => {
     socket_id: socket.id
   }
   // console.log('user connected')
-  // socket.on('go', (e) => console.log(e))
 
+  // socket instance middleware
+  socket.use(async (pack, next) => {
+    const accessToken = socket.handshake.auth.accessToken
+    try {
+      await verifyToken({ token: accessToken })
+      next()
+    } catch (error) {
+      next(new Error('Unauthorized'))
+    }
+  })
+  socket.on('error', (error) => {
+    console.log('error socket:', error)
+  })
   socket.on('sendMessage', async (data) => {
     const { payload } = data
     const receiver_socket_id = users[payload.receiver_id]?.socket_id
