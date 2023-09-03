@@ -2,15 +2,15 @@ import express from 'express'
 import { searchController } from '~/controllers/searchs.controllers'
 import { searchValidator } from '~/middlewares/searchs.middlewares'
 import { PaginationValidator } from '~/middlewares/tweets.middleware'
-import { accessTokenValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
+import { accessTokenValidator, isUserLoggedInValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapController } from '~/utils/handler'
 const searchRouter = express.Router()
 
 searchRouter.get(
   '/',
   PaginationValidator,
-  accessTokenValidator,
-  verifyUserValidator,
+  isUserLoggedInValidator(accessTokenValidator),
+  isUserLoggedInValidator(verifyUserValidator),
   searchValidator,
   wrapController(searchController)
 )
