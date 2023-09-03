@@ -16,10 +16,13 @@ import YAML from 'yaml'
 import fs from 'fs'
 import path from 'path'
 import swaggerUi from 'swagger-ui-express'
+import helmet from 'helmet'
+import { envConfig } from './constants/config'
 const file = fs.readFileSync(path.resolve('./src/twitter-swagger.yaml'), 'utf-8')
 const swaggerDocument = YAML.parse(file)
 const app = express()
 const httpServer = createServer(app)
+app.use(helmet())
 app.use(cors())
 databaseService.connect().then(() => {
   databaseService.indexUsers()
@@ -28,7 +31,7 @@ databaseService.connect().then(() => {
   databaseService.indexTweet()
 })
 const router = express.Router()
-const port = 3000
+const port = envConfig.PORT || 4000
 app.use(express.json())
 app.use('/api-doc', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use('/users', usersRouter)

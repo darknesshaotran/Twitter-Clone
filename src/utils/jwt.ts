@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
+// import dotenv from 'dotenv'
 import { ErrorsWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
-dotenv.config()
+import { envConfig } from '~/constants/config'
+// dotenv.config()
 export const signToken = ({
   payload,
-  privateKey = process.env.JWT_SECRET as string,
+  privateKey = envConfig.JWT_SECRET as string,
   options = {
     algorithm: 'HS256'
   }
@@ -24,7 +25,7 @@ export const signToken = ({
 
 export const verifyToken = ({
   token,
-  privateKey = process.env.JWT_SECRET as string
+  privateKey = envConfig.JWT_SECRET as string
 }: {
   token: string
   privateKey?: string

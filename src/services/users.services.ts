@@ -5,7 +5,7 @@ import { registerReqBody, updateMyProfileReqBody } from '~/models/requests/User.
 import { hashPassword } from '~/utils/crypto'
 import { signToken, verifyToken } from '~/utils/jwt'
 import { TokenType, UserVerifyStatus } from '~/constants/enums'
-import dotenv from 'dotenv'
+// import dotenv from 'dotenv'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
 import { USERS_MESSAGES } from '~/constants/messages'
@@ -13,7 +13,8 @@ import { ErrorsWithStatus } from '~/models/Errors'
 import HTTP_STATUS from '~/constants/httpStatus'
 import Follower from '~/models/schemas/Follower.schema'
 import { sendVerifyEmail } from '~/utils/email'
-dotenv.config()
+import { envConfig } from '~/constants/config'
+// dotenv.config()
 class UsersService {
   private signAccessToken = (userId: string, verifyStatus: UserVerifyStatus) => {
     return signToken({
@@ -23,7 +24,7 @@ class UsersService {
         type: TokenType.AccessToken
       },
       options: {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
+        expiresIn: envConfig.ACCESS_TOKEN_EXPIRES_IN
       }
     })
   }
@@ -45,7 +46,7 @@ class UsersService {
           type: TokenType.RefreshToken
         },
         options: {
-          expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN
+          expiresIn: envConfig.REFRESH_TOKEN_EXPIRES_IN
         }
       })
     }
@@ -58,7 +59,7 @@ class UsersService {
         type: TokenType.EmailVerifyToken
       },
       options: {
-        expiresIn: process.env.EMAIL_VERIFY_TOKEN_EXPIRES_IN
+        expiresIn: envConfig.EMAIL_VERIFY_TOKEN_EXPIRES_IN
       }
     })
   }
@@ -70,16 +71,16 @@ class UsersService {
         type: TokenType.ForgotPasswordToken
       },
       options: {
-        expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRES_IN
+        expiresIn: envConfig.FORGOT_PASSWORD_TOKEN_EXPIRES_IN
       }
     })
   }
   private getOAuthGoogleToken = async (code: string) => {
     const body = {
       code,
-      client_id: process.env.GOOGLE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URL,
+      client_id: envConfig.GOOGLE_CLIENT_ID,
+      client_secret: envConfig.GOOGLE_CLIENT_SECRET,
+      redirect_uri: envConfig.GOOGLE_REDIRECT_URL,
       grant_type: 'authorization_code'
     }
     const { data } = await axios.post('https://oauth2.googleapis.com/token', body, {
@@ -146,7 +147,7 @@ class UsersService {
       `
         <h1>Verify your email</h1>
         <p>click 
-          <a href="${process.env.CLIENT_HOME_REDIRECT}/verify-email?token=${EmailVerifyToken}">Here</a>
+          <a href="${envConfig.CLIENT_HOME_REDIRECT}/verify-email?token=${EmailVerifyToken}">Here</a>
           to verify your email
         </p>
       `
@@ -257,7 +258,7 @@ class UsersService {
       `
         <h1>Verify your email</h1>
         <p>click 
-          <a href="${process.env.CLIENT_HOME_REDIRECT}/verify-email?token=${email_verify_token}">Here</a>
+          <a href="${envConfig.CLIENT_HOME_REDIRECT}/verify-email?token=${email_verify_token}">Here</a>
           to verify your email
         </p>
       `
@@ -284,7 +285,7 @@ class UsersService {
       `
         <h1>forgot password email</h1>
         <p>click 
-          <a href="${process.env.CLIENT_HOME_REDIRECT}/reset-password?token=${forgot_password_token}">Here</a>
+          <a href="${envConfig.CLIENT_HOME_REDIRECT}/reset-password?token=${forgot_password_token}">Here</a>
           to reset your password
         </p>
       `
