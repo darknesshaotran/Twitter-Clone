@@ -1,9 +1,12 @@
 import { config } from 'dotenv'
 import argv from 'minimist'
-import { Db, Double } from 'mongodb'
 const options = argv(process.argv.slice(2))
-config()
-export const isProduction = Boolean(options.production)
+const enviroment = options.env
+console.log(`run in ${enviroment} enviroment`)
+
+config({
+  path: enviroment != 'development' ? `.env.${enviroment}` : `.env`
+})
 
 export const envConfig = {
   // URL FOR ACCESS
