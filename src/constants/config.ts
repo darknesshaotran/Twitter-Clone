@@ -1,11 +1,21 @@
 import { config } from 'dotenv'
-import argv from 'minimist'
-const options = argv(process.argv.slice(2))
-const enviroment = options.env
-console.log(`run in ${enviroment} enviroment`)
+import fs from 'fs'
+import path from 'path'
+const enviroment = process.env.NODE_ENV
+if (!enviroment) {
+  console.log('bạn chưa cung cấp biến môi trường (etc: production, staging, development)')
+  process.exit(1)
+}
+console.log(`run with ${enviroment} enviroment`)
+if (!fs.existsSync(path.resolve(`.env.${enviroment}`))) {
+  console.log(`không tìm thấy file môi trường .env.${enviroment}`)
+  console.log('note: app không dùng file .env, nếu môi trường là development thì app dùng file .env.development')
+  console.log(`vui lòng tạo file .env.${enviroment} và tham khảo nội dung ở file .env.example`)
+  process.exit(1)
+}
 
 config({
-  path: enviroment != 'development' ? `.env.${enviroment}` : `.env`
+  path: `.env.${enviroment}`
 })
 export const Enviroment = enviroment
 export const envConfig = {
