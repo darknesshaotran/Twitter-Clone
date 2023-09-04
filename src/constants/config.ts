@@ -7,7 +7,7 @@ console.log(`run in ${enviroment} enviroment`)
 config({
   path: enviroment != 'development' ? `.env.${enviroment}` : `.env`
 })
-
+export const Enviroment = enviroment
 export const envConfig = {
   // URL FOR ACCESS
   PORT: (process.env.PORT as string) || 3000,

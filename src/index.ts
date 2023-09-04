@@ -17,13 +17,18 @@ import fs from 'fs'
 import path from 'path'
 import swaggerUi from 'swagger-ui-express'
 import helmet from 'helmet'
-import { envConfig } from './constants/config'
+import { envConfig, Enviroment } from './constants/config'
 const file = fs.readFileSync(path.resolve('./src/twitter-swagger.yaml'), 'utf-8')
 const swaggerDocument = YAML.parse(file)
 const app = express()
 const httpServer = createServer(app)
 app.use(helmet())
-app.use(cors())
+
+app.use(
+  cors({
+    origin: Enviroment === 'development' ? '*' : envConfig.CLIENT_HOME_REDIRECT
+  })
+)
 databaseService.connect().then(() => {
   databaseService.indexUsers()
   databaseService.indexRefreshTokens()
