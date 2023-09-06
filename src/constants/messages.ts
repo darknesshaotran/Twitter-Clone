@@ -56,7 +56,9 @@ export const USERS_MESSAGES = {
   OLD_PASSWORD_REQUIRED: 'old password is required',
   OLD_PASSWORD_NOT_MATCH: 'old password is not match',
   CHANGE_PASS_SUCCESS: 'change password successfully',
-  UPLOAD_SUCCESS: 'upload successfully'
+  UPLOAD_SUCCESS: 'upload successfully',
+  GET_LIST_FOLLOWING: 'get following user successfully',
+  GET_LIST_FOLLOWER: 'get follower successfully'
 }
 
 export const TWEETS_MESSAGES = {

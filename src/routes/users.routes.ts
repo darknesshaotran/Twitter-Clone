@@ -5,6 +5,8 @@ import {
   emailVerifyController,
   followController,
   forgotPasswordController,
+  getListFollowingController,
+  getListfollowerController,
   getMyInforController,
   getProfileController,
   loginController,
@@ -158,6 +160,20 @@ usersRouter.patch(
  *      avatar?: string
  *      cover_photo?: string
  * }
+ */
+usersRouter.get('/following', accessTokenValidator, verifyUserValidator, wrapController(getListFollowingController))
+/*
+ * description : get list Following
+ * path : /following
+ * method : GET
+ * headers : { Authorization: Bearer <access_token> }
+ */
+usersRouter.get('/follower', accessTokenValidator, verifyUserValidator, wrapController(getListfollowerController))
+/*
+ * description : get list follower
+ * path : /follower
+ * method : GET
+ * headers : { Authorization: Bearer <access_token> }
  */
 usersRouter.get('/:username', wrapController(getProfileController))
 /*

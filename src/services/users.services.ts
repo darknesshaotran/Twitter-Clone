@@ -385,6 +385,86 @@ class UsersService {
     return user.value
   }
 
+  async getListFollowedByMe(userID: string) {
+    const follower_user_ids = await databaseService.followers
+      .find(
+        { user_id: new ObjectId(userID) },
+        {
+          projection: {
+            follower_user_id: 1
+          }
+        }
+      )
+      .toArray()
+    // danh sach mang objectId nhung nguoi ma minh follow
+    const ids = follower_user_ids.map((follower_user_id) => follower_user_id.follower_user_id)
+    const follower = await databaseService.users
+      .aggregate([
+        {
+          $match: {
+            _id: {
+              $in: ids
+            }
+          }
+        },
+        {
+          $project: {
+            date_of_birth: 0,
+            password: 0,
+            email_verify_token: 0,
+            forgot_password_token: 0,
+            twitter_circle: 0
+          }
+        }
+      ])
+      .toArray()
+
+    return {
+      message: USERS_MESSAGES.GET_LIST_FOLLOWING,
+      following: follower
+    }
+  }
+
+  async getListFollower(userID: string) {
+    const followers = await databaseService.followers
+      .find(
+        { follower_user_id: new ObjectId(userID) },
+        {
+          projection: {
+            user_id: 1
+          }
+        }
+      )
+      .toArray()
+    // danh sach mang objectId nhung nguoi follow mình
+    const ids = followers.map((follower) => follower.user_id)
+    const follower = await databaseService.users
+      .aggregate([
+        {
+          $match: {
+            _id: {
+              $in: ids
+            }
+          }
+        },
+        {
+          $project: {
+            date_of_birth: 0,
+            password: 0,
+            email_verify_token: 0,
+            forgot_password_token: 0,
+            twitter_circle: 0
+          }
+        }
+      ])
+      .toArray()
+
+    return {
+      message: USERS_MESSAGES.GET_LIST_FOLLOWER,
+      follower: follower
+    }
+  }
+
   async follow(userID: string, follower_user_id: string) {
     const follower = await databaseService.followers.findOne({
       user_id: new ObjectId(userID),

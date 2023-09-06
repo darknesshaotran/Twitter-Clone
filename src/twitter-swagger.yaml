@@ -357,6 +357,54 @@ paths:
                     example: update profile successfully
                   result:
                     $ref: '#/components/schemas/OwnUser' 
+  /users/following:
+    get:
+      tags:
+        - users
+      summary: get list following users
+      description: get list following users
+      operationId: following_user_list
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: get following successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: get following successfully
+                  follower: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'    
+  /users/follower:
+    get:
+      tags:
+        - users
+      summary: get list follower users
+      description: get list follower users
+      operationId: follower_user_list
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: get follower successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: get follower successfully
+                  follower: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'    
   /users/follow:
     post:
       tags:
@@ -543,8 +591,6 @@ paths:
                   message:
                     type: "string"
                     example: "delete tweet successfully"
-  
-
   /tweets/{id_tweet}/children:
     get:
       tags:
@@ -796,6 +842,70 @@ paths:
                   page:
                     type: number
                     example: 3
+  /search/hashtag:
+    get:
+      tags:
+        - search 
+      summary: search by hashtag
+      description: search for tweets with hashtag name, media_type (video,image) or people_follow (0,1)
+      operationId: searchHashtag
+      parameters:
+      - name: limit
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 10
+      - name: page
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 1
+      - name: content
+        in: query       
+        required: true
+        schema:
+          type: string
+          example: jav
+      - name: media_type
+        in: query       
+        required: false
+        schema:
+          type: string
+          enum: [image,video]
+          example: video
+      - name: people_follow
+        in: query       
+        required: false
+        schema:
+          type: number
+          enum: [0,1]
+          example: 1
+      security:
+        - bearerAuth: []   
+      responses:
+        default:
+          description: search hashtags successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: search hashtags successfully
+                  tweets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TweetNewFeed'
+                  total_page:
+                    type: number
+                    example: 3
+                  page:
+                    type: number
+                    example: 3
+  
   /conversation/receiver/{receiver_user_id}:
     get:
       tags:

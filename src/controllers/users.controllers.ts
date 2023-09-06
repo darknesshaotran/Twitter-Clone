@@ -150,6 +150,20 @@ export const updateMyInforController = async (
   })
 }
 
+export const getListFollowingController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const result = await usersService.getListFollowedByMe(userId)
+  res.json(result)
+}
+
+export const getListfollowerController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const result = await usersService.getListFollower(userId)
+  res.json(result)
+}
+
 export const followController = async (req: Request, res: Response) => {
   const { decoded_authorization }: any = req
   const { userId }: any = decoded_authorization
