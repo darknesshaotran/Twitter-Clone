@@ -18,12 +18,20 @@ import path from 'path'
 import swaggerUi from 'swagger-ui-express'
 import helmet from 'helmet'
 import { envConfig, Enviroment } from './constants/config'
+import { rateLimit } from 'express-rate-limit'
 const file = fs.readFileSync(path.resolve('./src/twitter-swagger.yaml'), 'utf-8')
 const swaggerDocument = YAML.parse(file)
 const app = express()
 const httpServer = createServer(app)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: 'draft-7', // draft-6: RateLimit-* headers; draft-7: combined RateLimit header
+  legacyHeaders: false // X-RateLimit-* headers
+  // store: ... , // Use an external store for more precise rate limiting
+})
+app.use(limiter)
 app.use(helmet())
-
 app.use(
   cors({
     origin: Enviroment === 'development' ? '*' : envConfig.CLIENT_HOME_REDIRECT

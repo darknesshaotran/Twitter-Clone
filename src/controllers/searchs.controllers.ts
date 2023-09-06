@@ -1,13 +1,7 @@
 import { config } from 'dotenv'
 import { Response, Request, NextFunction } from 'express'
-import { ParamsDictionary } from 'express-serve-static-core'
-import { ObjectId } from 'mongodb'
 import { MediaTypeQuery } from '~/constants/enums'
-import HTTP_STATUS from '~/constants/httpStatus'
-import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
-import databaseService from '~/services/database.services'
 import searchService from '~/services/searchs.services'
-import TweetsService from '~/services/tweets.services'
 config()
 
 export const searchController = async (req: Request, res: Response) => {

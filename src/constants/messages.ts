@@ -24,6 +24,7 @@ export const USERS_MESSAGES = {
   REFRESH_TOKEN_REQUIRED: 'Refresh token is required',
   REFRESH_TOKEN_SUCCESS: 'refresh token is successfully',
   USED_REFRESH_TOKEN_OR_NOT_EXIST: 'Used refresh token or not exist',
+  NOT_ENOUGH_AUTHORIZATION: 'Your account does not have authorization to access this resource',
   USER_NOT_FOUND: 'User not found',
   EMAIL_VERIFIED: 'Email already has been verified before',
   VERIFY_EMAIL_SUCCESS: 'Verified email successfully',
@@ -73,7 +74,8 @@ export const TWEETS_MESSAGES = {
   TWEET_NOT_FOUND: 'Tweet not found',
   GET_TWEET_SUCCESS: 'get tweet successfully',
   TWEET_IS_NOT_PUBLIC: 'Tweet is not public',
-  TWEET_LIMIT_RANGE: 'Maximum limit is 100 and minimum limit is 1'
+  TWEET_LIMIT_RANGE: 'Maximum limit is 100 and minimum limit is 1',
+  DELETE_TWEET_SUCCESS: 'delete tweet successfully'
 }
 
 export const BOOKMARKS_MESSAGES = {

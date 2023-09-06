@@ -1,6 +1,7 @@
 import express from 'express'
 import {
   createTweetController,
+  deleteTweetController,
   getNewFeedsController,
   getTweetChildrenController,
   getTweetController
@@ -40,6 +41,19 @@ tweetsRouter.get(
 )
 /*
  * description : get tweet
+ * path : /:tweet_id
+ * method : get
+ * headers : { Authorization ?: Bearer <access_token> }
+ */
+tweetsRouter.delete(
+  '/:tweet_id',
+  Tweet_IdValidator,
+  accessTokenValidator,
+  verifyUserValidator,
+  wrapController(deleteTweetController)
+)
+/*
+ * description : delete tweet
  * path : /:tweet_id
  * method : get
  * headers : { Authorization ?: Bearer <access_token> }

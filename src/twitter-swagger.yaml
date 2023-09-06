@@ -516,6 +516,35 @@ paths:
                     example: get tweet successfully
                   result:
                     $ref: '#/components/schemas/Tweet'
+    delete:
+      tags:
+        - tweets
+      summary: delete tweets
+      description: delete user tweet
+      operationId: delete_tweets
+      parameters:
+      - name: id_tweet
+        in: path
+        required: true
+        schema: 
+          type: string
+          example: 64b793138fef7e893d87651c
+          format: MongoId
+      security:
+        - bearerAuth: []
+      responses:
+        default:      
+          description: delete tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: "delete tweet successfully"
+  
+
   /tweets/{id_tweet}/children:
     get:
       tags:

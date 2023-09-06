@@ -5,6 +5,9 @@ import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId, WithId } from 'mongodb'
 import Hashtag from '~/models/schemas/Hashtag.schema'
 import { TweetType } from '~/constants/enums'
+import { ErrorsWithStatus } from '~/models/Errors'
+import HTTP_STATUS from '~/constants/httpStatus'
+import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
 
 config()
 class tweetsService {
@@ -467,6 +470,18 @@ class tweetsService {
     })
     // doc tong so document cua tweet co id tweet cha
     return { tweets, total: total[0].count }
+  }
+
+  async deleteTweet(userID: string, tweet: any) {
+    if (tweet.user_id.toString() !== userID) {
+      throw new ErrorsWithStatus({ status: HTTP_STATUS.UNAUTHORIZED, message: USERS_MESSAGES.NOT_ENOUGH_AUTHORIZATION })
+    }
+    await databaseService.tweets.deleteOne({
+      _id: tweet._id
+    })
+    return {
+      message: TWEETS_MESSAGES.DELETE_TWEET_SUCCESS
+    }
   }
 }
 const TweetsService = new tweetsService()
