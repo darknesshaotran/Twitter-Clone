@@ -405,6 +405,44 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/User'    
+  /users/hint:
+    get:
+      tags:
+        - users
+      summary: get list hint users
+      description: get list users that you may know
+      operationId: hint_users
+      parameters:
+      - name: limit
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 5
+      - name: page
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 1
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: Get list hint user you may know successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Get list hint user you may know successfully
+                  listHintUser: 
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'    
+  
   /users/follow:
     post:
       tags:

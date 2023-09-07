@@ -2,6 +2,7 @@ import { numberEnumToArray } from '~/utils/common'
 import { TweetAudience, TweetType } from './enums'
 
 export const USERS_MESSAGES = {
+  GET_LIST_HINT_USER: 'Get list hint user you may know successfully',
   VALIDATION_ERROR: 'Validation error',
   NAME_IS_REQUIRED: 'Name is required',
   NAME_MUST_BE_STRING: 'Name must be a string',

@@ -100,7 +100,6 @@ class UsersService {
     })
     return data
   }
-
   async checkExistedEmail(email: string) {
     const result = await databaseService.users.findOne({ email: email })
     return Boolean(result)
@@ -462,6 +461,81 @@ class UsersService {
     return {
       message: USERS_MESSAGES.GET_LIST_FOLLOWER,
       follower: follower
+    }
+  }
+
+  async getListAccountCanKnow(userID: string, page: number, limit: number) {
+    const follower_users = await databaseService.followers
+      .find(
+        { user_id: new ObjectId(userID) },
+        {
+          projection: {
+            follower_user_id: 1
+          }
+        }
+      )
+      .toArray()
+    // danh sach mang objectId nhung nguoi ma minh follow
+    const id_list_followers = follower_users.map((follower_user) => follower_user.follower_user_id)
+
+    // get ra danh sách những người được follow bởi "những người mà mình đang follow"
+    const followingAccoutOfFollowers = await databaseService.followers
+      .find(
+        {
+          user_id: {
+            $in: id_list_followers
+          }
+        },
+        {
+          projection: {
+            follower_user_id: 1
+          }
+        }
+      )
+      .toArray()
+    //danh sách mảng objectId những người được follow bởi "những người mà mình đang follow"
+    const id_List_User_Hint = followingAccoutOfFollowers.map(
+      (followingAccoutOfFollower) => followingAccoutOfFollower.follower_user_id
+    )
+
+    // loại bỏ các phẩn tử objectId trùng lặp
+    const id_List_User_Hint_distinct = new Set(id_List_User_Hint.map((id) => id.toString())) // Chuyển ObjectId thành chuỗi và sử dụng Set để loại bỏ trùng lặp
+    const id_List_User_Hint_distinct_new = [...id_List_User_Hint_distinct].map((id) => new ObjectId(id)) // Chuyển lại thành ObjectId
+
+    // loai bo cac userID đã follow
+    const id_List_User_Hint_distinct_final = id_List_User_Hint_distinct_new.filter(
+      (id) => !id_list_followers.some((id_list_follower) => id_list_follower.equals(id))
+    )
+
+    const ListUserHint = await databaseService.users
+      .aggregate([
+        {
+          $match: {
+            _id: {
+              $in: id_List_User_Hint_distinct_final
+            }
+          }
+        },
+        {
+          $project: {
+            date_of_birth: 0,
+            password: 0,
+            email_verify_token: 0,
+            forgot_password_token: 0,
+            twitter_circle: 0
+          }
+        },
+        {
+          $skip: limit * (page - 1)
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray()
+    return {
+      message: USERS_MESSAGES.GET_LIST_HINT_USER,
+      listHintUser: ListUserHint
     }
   }
 

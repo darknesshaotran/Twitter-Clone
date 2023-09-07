@@ -164,6 +164,13 @@ export const getListfollowerController = async (req: Request, res: Response) => 
   res.json(result)
 }
 
+export const getListHintUser = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { limit, page } = req.query
+  const { userId }: any = decoded_authorization
+  const result = await usersService.getListAccountCanKnow(userId, Number(page), Number(limit))
+  res.json(result)
+}
 export const followController = async (req: Request, res: Response) => {
   const { decoded_authorization }: any = req
   const { userId }: any = decoded_authorization

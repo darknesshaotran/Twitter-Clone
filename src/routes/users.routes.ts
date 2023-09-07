@@ -6,6 +6,7 @@ import {
   followController,
   forgotPasswordController,
   getListFollowingController,
+  getListHintUser,
   getListfollowerController,
   getMyInforController,
   getProfileController,
@@ -19,6 +20,7 @@ import {
   updateMyInforController,
   verifyForgotPasswordController
 } from '~/controllers/users.controllers'
+import { PaginationValidator } from '~/middlewares/tweets.middleware'
 import {
   accessTokenValidator,
   changePasswordValidator,
@@ -173,6 +175,20 @@ usersRouter.get('/follower', accessTokenValidator, verifyUserValidator, wrapCont
  * description : get list follower
  * path : /follower
  * method : GET
+ * headers : { Authorization: Bearer <access_token> }
+ */
+usersRouter.get(
+  '/hint',
+  PaginationValidator,
+  accessTokenValidator,
+  verifyUserValidator,
+  wrapController(getListHintUser)
+)
+/*
+ * description : get list Following
+ * path : /following
+ * method : GET
+ * query: { limit : number, page: number }
  * headers : { Authorization: Bearer <access_token> }
  */
 usersRouter.get('/:username', wrapController(getProfileController))
