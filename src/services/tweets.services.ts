@@ -484,33 +484,39 @@ class tweetsService {
     }
   }
 
-  async updateTweet(userID: string, tweetID: string, payload: updateTweetReqBody) {
+  async updateTweet(userID: string, _tweet: any, payload: updateTweetReqBody) {
+    if (_tweet.user_id.toString() !== userID) {
+      throw new ErrorsWithStatus({ status: HTTP_STATUS.UNAUTHORIZED, message: USERS_MESSAGES.NOT_ENOUGH_AUTHORIZATION })
+    }
     let mentions: ObjectId[] | undefined
-
     if (payload.mentions) {
-      // Chuyển đổi chuỗi thành ObjectId và lưu vào mentionss nếu payload.mentions tồn tại
+      // Chuyển đổi chuỗi thành ObjectId và lưu vào mentions nếu payload.mentions tồn tại
       mentions = payload.mentions.map((id) => new ObjectId(id))
     } else {
-      mentions = []
+      mentions = _tweet?.mentions
     }
 
-    const hashtags: ObjectId[] | undefined = payload.hashtags ? await this.checkAndCreateHashtags(payload.hashtags) : []
+    const hashtags: ObjectId[] | undefined = payload.hashtags
+      ? await this.checkAndCreateHashtags(payload.hashtags)
+      : _tweet?.hashtags
 
-    const _payload2 = {
+    const _payload = {
       ...payload,
       mentions, // Đảm bảo mentionss có kiểu dữ liệu ObjectId[]
       hashtags
     }
     const tweet = await databaseService.tweets.findOneAndUpdate(
-      { _id: new ObjectId(tweetID) },
+      { _id: _tweet._id },
       {
         $set: {
-          ..._payload2,
+          ..._payload,
           updated_at: new Date()
         }
       },
-      {}
+      { returnDocument: 'after' }
     )
+
+    return tweet.value
   }
 }
 const TweetsService = new tweetsService()

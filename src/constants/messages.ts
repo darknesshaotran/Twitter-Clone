@@ -78,7 +78,8 @@ export const TWEETS_MESSAGES = {
   GET_TWEET_SUCCESS: 'get tweet successfully',
   TWEET_IS_NOT_PUBLIC: 'Tweet is not public',
   TWEET_LIMIT_RANGE: 'Maximum limit is 100 and minimum limit is 1',
-  DELETE_TWEET_SUCCESS: 'delete tweet successfully'
+  DELETE_TWEET_SUCCESS: 'delete tweet successfully',
+  UPDATE_TWEET_SUCCESS: 'update tweet successfully'
 }
 
 export const BOOKMARKS_MESSAGES = {

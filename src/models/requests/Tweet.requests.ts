@@ -10,3 +10,10 @@ export interface TweetRequestBody {
   mentions: string[] // user_id[]
   medias: Media[]
 }
+export interface updateTweetReqBody {
+  audience?: TweetAudience
+  content?: string
+  hashtags?: string[]
+  mentions?: string[]
+  medias?: Media[]
+}

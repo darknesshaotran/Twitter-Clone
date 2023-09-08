@@ -4,7 +4,8 @@ import {
   deleteTweetController,
   getNewFeedsController,
   getTweetChildrenController,
-  getTweetController
+  getTweetController,
+  updateTweetController
 } from '~/controllers/tweets.controllers'
 import {
   AudienceValidator,
@@ -91,5 +92,11 @@ tweetsRouter.get(
  * headers : { Authorization ?: Bearer <access_token> }
  * query: { limit : number, page: number, tweet_type:  TweetType }
  */
-
+tweetsRouter.patch(
+  '/:tweet_id',
+  Tweet_IdValidator,
+  accessTokenValidator,
+  verifyUserValidator,
+  wrapController(updateTweetController)
+)
 export default tweetsRouter

@@ -3,7 +3,7 @@ import { Response, Request, NextFunction } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { TweetType } from '~/constants/enums'
 import { TWEETS_MESSAGES, USERS_MESSAGES } from '~/constants/messages'
-import { TweetRequestBody } from '~/models/requests/Tweet.requests'
+import { TweetRequestBody, updateTweetReqBody } from '~/models/requests/Tweet.requests'
 import TweetsService from '~/services/tweets.services'
 config()
 export const createTweetController = async (req: Request<ParamsDictionary, any, TweetRequestBody>, res: Response) => {
@@ -72,5 +72,16 @@ export const getNewFeedsController = async (req: Request, res: Response) => {
     total_page: Math.ceil(total / Number(limit)),
     page: Number(page)
     // total_page: Math.ceil(total / Number(limit))
+  })
+}
+
+export const updateTweetController = async (req: Request<ParamsDictionary, any, updateTweetReqBody>, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const { tweet }: any = req
+  const _tweet = await TweetsService.updateTweet(userId, tweet, req.body)
+  return res.json({
+    message: TWEETS_MESSAGES.UPDATE_TWEET_SUCCESS,
+    result: _tweet
   })
 }
