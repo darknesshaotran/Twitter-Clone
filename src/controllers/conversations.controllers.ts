@@ -12,3 +12,11 @@ export const getConversationController = async (req: Request, res: Response) => 
   const result = await conversationService.getConversations(sender_id, receiver_id, Number(limit), Number(page))
   res.json(result)
 }
+
+export const getConversationListController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const { limit, page } = req.query
+  const result = await conversationService.getListConversations(userId, Number(limit), Number(page))
+  res.json(result)
+}

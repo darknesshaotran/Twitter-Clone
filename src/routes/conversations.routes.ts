@@ -1,9 +1,17 @@
 import express from 'express'
-import { getConversationController } from '~/controllers/conversations.controllers'
+import { getConversationController, getConversationListController } from '~/controllers/conversations.controllers'
 import { PaginationValidator } from '~/middlewares/tweets.middleware'
 import { accessTokenValidator, conversationValidator, verifyUserValidator } from '~/middlewares/users.middlewares'
 import { wrapController } from '~/utils/handler'
 const conversationRouter = express.Router()
+
+conversationRouter.get(
+  '/',
+  accessTokenValidator,
+  verifyUserValidator,
+  PaginationValidator,
+  wrapController(getConversationListController)
+)
 
 conversationRouter.get(
   '/receiver/:receiver_id',
@@ -19,4 +27,5 @@ conversationRouter.get(
  * method : GET
  * headers : { Authorization: Bearer <access_token> }
  */
+
 export default conversationRouter

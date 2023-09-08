@@ -436,8 +436,7 @@ paths:
                   listHintUser: 
                     type: array
                     items:
-                      $ref: '#/components/schemas/User'    
-  
+                      $ref: '#/components/schemas/User'     
   /users/follow:
     post:
       tags:
@@ -898,7 +897,6 @@ paths:
                   page:
                     type: number
                     example: 3
-  
   /search/:
     get:
       tags:
@@ -1076,6 +1074,51 @@ paths:
                   limit:
                     type: number
                     example: 3
+  /conversation:
+    get:
+      tags:
+        - conversation
+      summary: get conversation list
+      description: get user list that you had a conversation before
+      operationId: getConversationList
+      parameters:
+      - name: limit
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 5
+      - name: page
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 1
+      security:
+        - bearerAuth: []   
+      responses:
+        default:
+          description: get conversation list successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: get conversation list successfully
+                  conversation:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConversationList'
+                  total_page:
+                    type: number
+                    example: 3
+                  page:
+                    type: number
+                    example: 3
+              
+  
   /medias/upload-image:
     post:
       tags:
@@ -1657,7 +1700,61 @@ components:
           type: number
           enum: [0,1]
           example: 0
-      
+    ConversationList:
+      type: object
+      properties:
+        created_at:
+          type: string
+          example: '2023-09-08T13:29:53.550Z'
+        content:
+          type: string
+          example: 'sao em'
+        id_sender:
+          type: string
+          example: '64c085550db5a3eee4acfe62'
+        chatting_user:
+          type: object
+          properties:
+            _id:
+              type: string
+              example: '64f302a64784c7ffcbb73273'
+            name:
+              type: string
+              example: 'vinh tran'
+            email:
+              type: string
+              example: 'darknessclmm@gmail.com'
+            username:
+              type: string
+              example: 'user64f302a64784c7ffcbb73273'
+            avatar:
+              type: string
+              example: ''
+        _id:
+          type: string
+          example: '64fb21d14a9d6b22508a3b7a'
+        receiver_id:
+          type: string
+          example: '64f302a64784c7ffcbb73273'
+        sended_content_user:
+          type: object
+          properties:
+            _id:
+              type: string
+              example: '64c085550db5a3eee4acfe62'
+            name:
+              type: string
+              example: 'hồ thanh hưng'
+            email:
+              type: string
+              example: 'hothanhhung131@gmail.com'
+            username:
+              type: string
+              example: 'user64c085550db5a3eee4acfe62'
+            avatar:
+              type: string
+              example: ''
+
   securitySchemes:
     bearerAuth:
       type: http
