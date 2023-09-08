@@ -623,6 +623,43 @@ paths:
                   message:
                     type: "string"
                     example: "delete tweet successfully"
+    patch:
+      tags:
+        - tweets
+      summary: update tweet
+      description: update user's tweets
+      operationId: update_tweets
+      parameters:
+      - name: id_tweet
+        in: path
+        required: true
+        schema: 
+          type: string
+          example: 64b793138fef7e893d87651c
+          format: MongoId
+      requestBody:
+        description: update_tweets's request
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/UpdateTweetBody'     
+        required: false
+      security:
+        - bearerAuth: []
+      responses:
+        default:
+          description: update tweet successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: update tweet successfully
+                  result:
+                    $ref: '#/components/schemas/Tweet' 
+  
   /tweets/{id_tweet}/children:
     get:
       tags:
@@ -1424,6 +1461,32 @@ components:
                   - image
                   - video
                 example: 0
+    UpdateTweetBody:
+      type: object
+      properties:
+        audience:
+          type: "number"
+          enum: [0,1] #EveryOne,TwitterCircle
+          example: 0
+        content:
+          type: "string"
+          example: "hello world"
+        hashtags:
+          type: "array"
+          items:
+            type: string
+            example: "reactJS"
+        mentions:
+          type: "array"
+          items:
+            type: string
+            format: MongoId
+            example: "64fb470c523ae91baa7e3dea"
+        medias:
+          type: array
+          items:
+            $ref: '#/components/schemas/Media'
+        
     Tweet: 
       type: object
       properties:
