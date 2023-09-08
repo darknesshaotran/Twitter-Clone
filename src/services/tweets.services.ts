@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { TweetRequestBody } from '~/models/requests/Tweet.requests'
+import { TweetRequestBody, updateTweetReqBody } from '~/models/requests/Tweet.requests'
 import databaseService from './database.services'
 import Tweet from '~/models/schemas/Tweet.schema'
 import { ObjectId, WithId } from 'mongodb'
@@ -482,6 +482,35 @@ class tweetsService {
     return {
       message: TWEETS_MESSAGES.DELETE_TWEET_SUCCESS
     }
+  }
+
+  async updateTweet(userID: string, tweetID: string, payload: updateTweetReqBody) {
+    let mentions: ObjectId[] | undefined
+
+    if (payload.mentions) {
+      // Chuyển đổi chuỗi thành ObjectId và lưu vào mentionss nếu payload.mentions tồn tại
+      mentions = payload.mentions.map((id) => new ObjectId(id))
+    } else {
+      mentions = []
+    }
+
+    const hashtags: ObjectId[] | undefined = payload.hashtags ? await this.checkAndCreateHashtags(payload.hashtags) : []
+
+    const _payload2 = {
+      ...payload,
+      mentions, // Đảm bảo mentionss có kiểu dữ liệu ObjectId[]
+      hashtags
+    }
+    const tweet = await databaseService.tweets.findOneAndUpdate(
+      { _id: new ObjectId(tweetID) },
+      {
+        $set: {
+          ..._payload2,
+          updated_at: new Date()
+        }
+      },
+      {}
+    )
   }
 }
 const TweetsService = new tweetsService()
