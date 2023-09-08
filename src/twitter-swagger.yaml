@@ -2,11 +2,6 @@ openapi: 3.0.3
 info:
   title: twitter-clone APIs
   description: |-
-    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
-    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
-    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
-    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
-    Some useful links:
     - [how to use Swagger](https://youtu.be/vhFK6hXV-Qo)
     - [The source API definition for twitter-clone](https://github.com/darknesshaotran/Twitter-Clone)
   contact:
@@ -753,6 +748,49 @@ paths:
                     example: unbookmark tweet successfully
                   result:
                     $ref: '#/components/schemas/BookmarkAndLikes'
+  /bookmarks/List:
+    get:
+      tags:
+        - bookmarks
+      summary: get bookmarked tweet's list
+      description: search for tweets which user bookmarked before
+      operationId: getBookmarkedTweets
+      parameters:
+      - name: limit
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 10
+      - name: page
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 1
+      security:
+        - bearerAuth: []   
+      responses:
+        default:
+          description: get Bookmarked Tweets successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: get Bookmarked Tweets successfully
+                  tweets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TweetNewFeed'
+                  total_page:
+                    type: number
+                    example: 3
+                  page:
+                    type: number
+                    example: 3  
   /likes/:
     post:
       tags:
@@ -817,6 +855,50 @@ paths:
                     example: unlike tweet successfully
                   result:
                     $ref: '#/components/schemas/BookmarkAndLikes'
+  /likes/List:
+    get:
+      tags:
+        - likes
+      summary: get liked tweet's list
+      description: search for tweets which user liked before
+      operationId: getlikedTweets
+      parameters:
+      - name: limit
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 10
+      - name: page
+        in: query       
+        required: true
+        schema:
+          type: number
+          example: 1
+      security:
+        - bearerAuth: []   
+      responses:
+        default:
+          description: get liked Tweets successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: "string"
+                    example: get liked Tweets successfully
+                  tweets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TweetNewFeed'
+                  total_page:
+                    type: number
+                    example: 3
+                  page:
+                    type: number
+                    example: 3
+  
   /search/:
     get:
       tags:

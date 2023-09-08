@@ -22,3 +22,16 @@ export const UnBookmarkTweetController = async (req: Request, res: Response) => 
     result
   })
 }
+
+export const getBookmarkedTweetController = async (req: Request, res: Response) => {
+  const { decoded_authorization }: any = req
+  const { userId }: any = decoded_authorization
+  const { limit, page } = req.query
+  const { tweets, total } = await BookmarksService.getBookmarkedTweet(userId, Number(limit), Number(page))
+  res.json({
+    message: 'get Bookmarked Tweets successfully',
+    tweets,
+    total_page: Math.ceil(total / Number(limit)),
+    page: Number(page)
+  })
+}
