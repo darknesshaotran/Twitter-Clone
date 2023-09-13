@@ -1,0 +1,8 @@
+version: '3'
+services:
+  twitter:
+    image: 'darknessclmm/twitter-dev:v1'
+    ports:
+      - '3000:3000'
+    # volumes:
+    #   - 'D:\source\haotranhoccode\nodeBasic\Twitter-Clone\uploads:app/uploads'
