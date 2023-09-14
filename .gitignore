@@ -4,4 +4,3 @@ dist/
 .env.production
 .env.staging
 .env.development
-uploads/
