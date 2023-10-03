@@ -243,13 +243,13 @@ class tweetsService {
     const [tweets, total] = await Promise.all([
       databaseService.tweets
         .aggregate([
-          {
-            $match: {
-              user_id: {
-                $in: ids
-              }
-            }
-          },
+          // {
+          //   $match: {
+          //     user_id: {
+          //       $in: ids
+          //     }
+          //   }
+          // },
           {
             $lookup: {
               from: 'users',
@@ -405,13 +405,13 @@ class tweetsService {
         .toArray(),
       databaseService.tweets
         .aggregate([
-          {
-            $match: {
-              user_id: {
-                $in: ids
-              }
-            }
-          },
+          // {
+          //   $match: {
+          //     user_id: {
+          //       $in: ids
+          //     }
+          //   }
+          // },
           {
             $lookup: {
               from: 'users',
@@ -468,6 +468,7 @@ class tweetsService {
     tweets.forEach((tweet) => {
       tweet.user_views += 1
     })
+
     // doc tong so document cua tweet co id tweet cha
     return { tweets, total: total[0].count }
   }
